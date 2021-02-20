@@ -1,7 +1,8 @@
 {
   "id": "Octify",
   "name": "octify plugin",
-  "description": "Make width/height of selected rectangles to the nearest multiples of 8 by round.",
+  "summary": "Resize to a multiple of 8.",
+  "description": "The size of width/height can be changed to the rounded number, a multiple of 8.",
   "version": "1.0.0",
   "host": {
     "app": "XD",
@@ -17,14 +18,12 @@
     {
       "type": "menu",
       "label": "width",
-      "commandId": "octifyWidth",
-      "shortcut": { "mac": "Cmd+Shift+W", "win": "Ctrl+Alt+W" }
+      "commandId": "octifyWidth"
     },
     {
       "type": "menu",
       "label": "height",
-      "commandId": "octifyHeight",
-      "shortcut": { "mac": "Cmd+Shift+H", "win": "Ctrl+Alt+H" }
+      "commandId": "octifyHeight"
     }
   ]
 }
