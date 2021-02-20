@@ -1,9 +1,16 @@
 const octify = (number) => Math.round(number / 8) * 8;
 
 const octifyFn = (selection) => {
-  selection.items.forEach((item) => {
+  const { items } = selection
+  if(items.length === 0) return
+  if(items.length === 1) {
+    const item = items[0]
     const bounds = item.boundsInParent;
     item.resize(octify(bounds.width), octify(bounds.height));
+    return
+  }
+  items.forEach((item) => {
+    console.log('2')
   });
 };
 
