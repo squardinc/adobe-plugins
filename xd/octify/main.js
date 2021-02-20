@@ -1,21 +1,18 @@
-const { Rectangle } = require("scenegraph");
+const octify = (number) => Math.round(number / 8) * 8;
 
-function octifyWidthFn(selection) {
-  for (let i = 0; i < selection.items.length; i++) {
-    let item = selection.items[i];
-    if (item instanceof Rectangle) {
-      item.width = Math.round(item.width / 8) * 8;
-    }
-  }
-}
-function octifyHeightFn(selection) {
-  for (let i = 0; i < selection.items.length; i++) {
-    let item = selection.items[i];
-    if (item instanceof Rectangle) {
-      item.height = Math.round(item.height / 8) * 8;
-    }
-  }
-}
+
+const octifyWidthFn = (selection) => {
+  selection.items.forEach((item) => {
+    const bounds = item.boundsInParent;
+    item.resize(octify(bounds.width), bounds.height);
+  });
+};
+const octifyHeightFn = (selection) => {
+  selection.items.forEach((item) => {
+    const bounds = item.boundsInParent;
+    item.resize(bounds.width, octify(bounds.height));
+  });
+};
 
 module.exports = {
   commands: {
