@@ -10,6 +10,12 @@
   "uiEntryPoints": [
     {
       "type": "menu",
+      "label": "both",
+      "commandId": "octify",
+      "shortcut": { "mac": "Cmd+Ctrl+8", "win": "Ctrl+Shift+8" }
+    },
+    {
+      "type": "menu",
       "label": "width",
       "commandId": "octifyWidth",
       "shortcut": { "mac": "Cmd+Shift+W", "win": "Ctrl+Alt+W" }
