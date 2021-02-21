@@ -1,5 +1,6 @@
 const octify = (number) => Math.round(number / 8) * 8;
 
+
 const octifyFn = (selection) => {
   const { items } = selection
   if(items.length === 0) return
@@ -9,8 +10,23 @@ const octifyFn = (selection) => {
     item.resize(octify(bounds.width), octify(bounds.height));
     return
   }
+  
+  const itemOne = selection.items[0]
+  const itemTwo = selection.items[1]
+  const diffY = (itemOne.topLeftInParent.y + itemOne.height) - itemTwo.topLeftInParent.y;
+  itemOne.moveInParentCoordinates( 0, octify(diffY) - diffY); 
+  
+  
+  /** 
+  const itemOne = selection.items[0]
+  const itemTwo = selection.items[1]
+  const diffX = (itemOne.topLeftInParent.x + itemOne.width) - itemTwo.topLeftInParent.x;
+  itemOne.moveInParentCoordinates( octify(diffX) - diffX, 0); 
+  */
+
+
   items.forEach((item) => {
-    console.log('2')
+    console.log(item)
   });
 };
 
@@ -26,11 +42,19 @@ const octifyHeightFn = (selection) => {
     item.resize(bounds.width, octify(bounds.height));
   });
 };
+const octifyDifferenceYFn = (selection) => {
+  const itemOne = selection.items[0]
+  const itemTwo = selection.items[1]
+  const diffY = (itemOne.topLeftInParent.y + itemOne.height) - itemTwo.topLeftInParent.y;
+  itemOne.moveInParentCoordinates( 0, octify(diffY) - diffY);  
+}
 
 module.exports = {
   commands: {
     octify: octifyFn,
     octifyWidth: octifyWidthFn,
     octifyHeight: octifyHeightFn,
+    octifyDiffY: octifyDifferenceYFn,
+
   },
 };
