@@ -11,11 +11,6 @@ const octifyFn = (selection) => {
     return
   }
   
-  const itemOne = selection.items[0]
-  const itemTwo = selection.items[1]
-  const diffY = (itemOne.topLeftInParent.y + itemOne.height) - itemTwo.topLeftInParent.y;
-  itemOne.moveInParentCoordinates( 0, octify(diffY) - diffY); 
-  
   
   /** 
   const itemOne = selection.items[0]
@@ -54,7 +49,7 @@ module.exports = {
     octify: octifyFn,
     octifyWidth: octifyWidthFn,
     octifyHeight: octifyHeightFn,
-    octifyDiffY: octifyDifferenceYFn,
+    octifyDiffY: octifyDifferenceYF
 
   },
 };
