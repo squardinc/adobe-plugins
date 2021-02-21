@@ -59,6 +59,7 @@ const octifyDifferenceFn = (selection) => {
 };
 
 module.exports = {
+  octify,
   commands: {
     octify: octifyFn,
     octifyWidth: octifyWidthFn,
