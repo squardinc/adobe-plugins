@@ -10,15 +10,6 @@ const octifyFn = (selection) => {
     item.resize(octify(bounds.width), octify(bounds.height));
     return
   }
-  
-  
-  /** 
-  const itemOne = selection.items[0]
-  const itemTwo = selection.items[1]
-  const diffX = (itemOne.topLeftInParent.x + itemOne.width) - itemTwo.topLeftInParent.x;
-  itemOne.moveInParentCoordinates( octify(diffX) - diffX, 0); 
-  */
-
 
   items.forEach((item) => {
     console.log(item)
@@ -37,11 +28,24 @@ const octifyHeightFn = (selection) => {
     item.resize(bounds.width, octify(bounds.height));
   });
 };
-const octifyDifferenceYFn = (selection) => {
-  const itemOne = selection.items[0]
-  const itemTwo = selection.items[1]
-  const diffY = (itemOne.topLeftInParent.y + itemOne.height) - itemTwo.topLeftInParent.y;
-  itemOne.moveInParentCoordinates( 0, octify(diffY) - diffY);  
+const octifyDifferenceFn = (selection) => {
+  const { items } = selection
+  if(items.length === 2) {
+    const itemOne = items[0]
+    const itemTwo = items[1]
+    const itemOneRightBottom = {x: itemOne.topLeftInParent.x + itemOne.width, y: itemOne.topLeftInParent.y + itemOne.height};
+  
+    if(itemOneRightBottom.y > itemTwo.topLeftInParent.y && itemOneRightBottom.x < itemTwo.topLeftInParent.x) {
+      const diffX = itemTwo.topLeftInParent.x - (itemOne.topLeftInParent.x + itemOne.width);
+      itemTwo.moveInParentCoordinates(octify(diffX) - diffX, 0);
+    } 
+    else if((itemOneRightBottom.y < itemTwo.topLeftInParent.y) && (itemOneRightBottom.x > itemTwo.topLeftInParent.x))
+    {
+      const diffY = itemTwo.topLeftInParent.y - (itemOne.topLeftInParent.y + itemOne.height);
+      itemTwo.moveInParentCoordinates( 0, octify(diffY) - diffY);  
+    } else {
+    return
+    }}
 }
 
 module.exports = {
@@ -49,7 +53,7 @@ module.exports = {
     octify: octifyFn,
     octifyWidth: octifyWidthFn,
     octifyHeight: octifyHeightFn,
-    octifyDiffY: octifyDifferenceYF
+    octifyDiff: octifyDifferenceFn
 
   },
 };
