@@ -14,7 +14,6 @@ const extract = (selection) => {
   const item = items[0];
   return {
     item,
-    bounds: item.boundsInParent,
     width: focusedArtboard.width,
   };
 };
@@ -31,19 +30,22 @@ const toNextHeight = (height, width) => {
     return adjust(width, ratioArray[0]);
   return adjust(width, ratioArray[currentIndex + 1]);
 };
-
+const setToArtboardLeft = (item) => {
+  item.rotateAround(0 - item.rotation, item.localCenterPoint);
+  item.moveInParentCoordinates(-item.boundsInParent.x, 0);
+};
 const adjustWithRatio = (selection, ratio) => {
-  const { item, bounds, width } = extract(selection);
+  const { item, width } = extract(selection);
   if (!item) return;
-  item.moveInParentCoordinates(-bounds.x, 0);
+  setToArtboardLeft(item);
   item.resize(width, adjust(width, ratio));
 };
 
 const hunt = (selection) => {
-  const { item, bounds, width } = extract(selection);
+  const { item, width } = extract(selection);
   if (!item) return;
-  item.moveInParentCoordinates(-bounds.x, 0);
-  item.resize(width, toNextHeight(bounds.height, width));
+  setToArtboardLeft(item);
+  item.resize(width, toNextHeight(item.boundsInParent.height, width));
 };
 
 module.exports = {
