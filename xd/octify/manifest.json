@@ -46,6 +46,11 @@
       "type": "menu",
       "label": "margin",
       "commandId": "octifyDiff"
-    } 
+    },
+    {
+      "type": "menu",
+      "label": "test",
+      "commandId": "test"
+    }
   ]
 }
