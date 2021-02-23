@@ -1,5 +1,5 @@
 const octify = (number) => Math.round(number / 8) * 8;
-
+ 
 const octifyCeil = (number) => Math.ceil(number / 8) * 8;
 const octifyFloor = (number) => Math.floor(number / 8) * 8;
 
@@ -33,38 +33,6 @@ const octifyHeightFn = (selection) => {
   });
 };
 
-const octifyDifferenceFn = (selection) => {
-  const { items } = selection;
-  if (items.length === 2) {
-    const itemOne = items[0];
-    const itemTwo = items[1];
-    
-    const itemOneRightBottom = {
-      x: itemOne.topLeftInParent.x + itemOne.width,
-      y: itemOne.topLeftInParent.y + itemOne.height,
-    };
-
-    if (
-      itemOneRightBottom.y > itemTwo.topLeftInParent.y &&
-      itemOneRightBottom.x < itemTwo.topLeftInParent.x
-    ) {
-      const diffX =
-        itemTwo.topLeftInParent.x - (itemOne.topLeftInParent.x + itemOne.width);
-      itemTwo.moveInParentCoordinates(octify(diffX) - diffX, 0);
-    } else if (
-      itemOneRightBottom.y < itemTwo.topLeftInParent.y &&
-      itemOneRightBottom.x > itemTwo.topLeftInParent.x
-    ) {
-      const diffY =
-        itemTwo.topLeftInParent.y -
-        (itemOne.topLeftInParent.y + itemOne.height);
-      itemTwo.moveInParentCoordinates(0, octify(diffY) - diffY);
-    } else {
-      return;
-    }
-  }
-};
-
 const shouldPlaceToHorizontal = (items) => {
   const itemOneRightBottom = {
     x: items[0].topLeftInParent.x + items[0].width,
@@ -76,7 +44,7 @@ const shouldPlaceToHorizontal = (items) => {
     item.topLeftInParent.x < itemOneRightBottom.x )
   })
 }
-const test = (selection) =>  {
+const octifyDifferenceFn = (selection) =>  {
   const { items } = selection;
   if (items.length >= 2) {
 
@@ -161,6 +129,5 @@ module.exports = {
     octifyWidth: octifyWidthFn,
     octifyHeight: octifyHeightFn,
     octifyDiff: octifyDifferenceFn,
-    test: test,
   },
 };
