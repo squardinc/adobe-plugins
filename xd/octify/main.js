@@ -44,11 +44,22 @@ const shouldPlaceToHorizontal = (items) => {
     item.topLeftInParent.x < itemOneRightBottom.x )
   })
 }
+
+const shouldPlaceToVertical = (items) => {
+  const itemOneRightBottom = {
+    x: items[0].topLeftInParent.x + items[0].width,
+    y: items[0].topLeftInParent.y + items[0].height,
+  };
+  return !items.find((item, idx) => {
+    if(idx === 0) return false
+    return (item.topLeftInParent.y < itemOneRightBottom.y ||
+      item.topLeftInParent.x > itemOneRightBottom.x)
+  })
+}
+
 const octifyDifferenceFn = (selection) =>  {
   const { items } = selection;
   if (items.length >= 2) {
-
-    let checkV = false;
 
     const centerX = items[0].topLeftInParent.x + (items[0].width / 2);
     const centerY = items[0].topLeftInParent.y + (items[0].height / 2);
@@ -57,18 +68,6 @@ const octifyDifferenceFn = (selection) =>  {
       x: items[0].topLeftInParent.x + items[0].width,
       y: items[0].topLeftInParent.y + items[0].height,
     };
-
-    for(let i = 1; i < items.length; i ++) {
-      if(
-        itemOneRightBottom.y < items[i].topLeftInParent.y &&
-        itemOneRightBottom.x > items[i].topLeftInParent.x
-      ){
-        checkV = true;
-      }else {
-        checkV = false;
-        break;
-      }
-    }
 
     if(shouldPlaceToHorizontal(items)){
       let totalDiffX = 0;
@@ -91,7 +90,7 @@ const octifyDifferenceFn = (selection) =>  {
 
         items[i].translation = {x: items[0].translation.x + moveDistance, y: centerY - Math.abs(items[i].height /2 )}
       }
-    } else if(checkV == true){
+    } else if(shouldPlaceToVertical(items)){
       let totalDiffV = 0;
       let moveDistance = 0;
 
@@ -124,6 +123,7 @@ const octifyDifferenceFn = (selection) =>  {
 module.exports = {
   octify,
   shouldPlaceToHorizontal,
+  shouldPlaceToVertical,
   commands: {
     octify: octifyFn,
     octifyWidth: octifyWidthFn,

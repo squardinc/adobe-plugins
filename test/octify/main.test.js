@@ -1,5 +1,5 @@
 const { describe, test, expect } = require("@jest/globals");
-const { octify ,shouldPlaceToHorizontal} = require("../../xd/octify/main");
+const { octify ,shouldPlaceToHorizontal, shouldPlaceToVertical } = require("../../xd/octify/main");
 
 describe("Octify", () => {
   describe("Octify", () => {
@@ -58,7 +58,7 @@ describe("Octify", () => {
       ]
       expect(shouldPlaceToHorizontal(items2)).toBeFalsy();
     })
-    test("false if on or more items placed in left of first item", () => {
+    test("false if one or more items placed in left of first item", () => {
       const items3 = [
         items[0],
         {
@@ -70,6 +70,62 @@ describe("Octify", () => {
         items[2],
       ]
       expect(shouldPlaceToHorizontal(items3)).toBeFalsy();
+    })
+  })
+
+  describe("shouldPlaceToVertical", () => {
+    const firstItem = {
+      topLeftInParent: {
+        x: 0,
+        y: 0,
+      },
+      width: 10,
+      height:20,
+    }
+
+    const items = [
+      firstItem,
+      {
+        topLeftInParent: {
+          x: firstItem.width - 1,
+          y: firstItem.height + 1,
+        },
+      },
+      {
+        topLeftInParent: {
+          x: firstItem.width - 0.1,
+          y: firstItem.height + 0.1,
+        },
+      }
+    ]
+    test("true if no items placed in right of first item", () => {
+      expect(shouldPlaceToVertical(items)).toBeTruthy();
+    })
+    test("false if one or more items placed in right of first item", () => {
+      const items2 = [
+        items[0],
+        {
+          topLeftInParent: {
+            x: firstItem.width + 1,
+            y: items[1].topLeftInParent.y,
+          }
+        },
+        items[2],
+      ]
+      expect(shouldPlaceToVertical(items2)).toBeFalsy();
+    })
+    test("false if one or more items placed in above of first item", () => {
+      const items3 = [
+        items[0],
+        {
+          topLeftInParent: {
+            x: items[1].width,
+            y: firstItem.height - 1
+          }
+        },
+        items[2],
+      ]
+      expect(shouldPlaceToVertical(items3)).toBeFalsy();
     })
   })
 });
