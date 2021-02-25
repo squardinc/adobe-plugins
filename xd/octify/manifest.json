@@ -46,6 +46,11 @@
       "type": "menu",
       "label": "margin",
       "commandId": "octifyDiff"
+    },
+    {
+      "type": "panel",
+      "label": "Margin Panel",
+      "panelId": "octifyMarginPanel"
     }
   ]
 }
