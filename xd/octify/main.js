@@ -235,12 +235,21 @@ function create() {
     const { editDocument } = require("application");
     
     editDocument({ editLabel: "Increase margin"}, function (selection) {
-    
       const { items } = selection;
-      for(let i = 1; i < items.length; i ++){
-        const moveItem= items[i];
-        moveItem.translation = {x: moveItem.translation.x + 8 * i, y: moveItem.translation.y}
+      if(shouldPlaceToHorizontal(items)){
+        for(let i = 1; i < items.length; i ++){
+            const moveItem= items[i];
+            moveItem.translation = {x: moveItem.translation.x + 8 * i, y: moveItem.translation.y}
+        }
+      }else if(shouldPlaceToVertical(items)){
+        for(let i = 1; i < items.length; i ++){
+            const moveItem= items[i];
+            moveItem.translation = {x: moveItem.translation.x, y: moveItem.translation.y + 8 * i}
+        }
+      }else{
+        return
       }
+
     })
   }
 
@@ -248,11 +257,19 @@ function create() {
       const { editDocument } = require("application");
       
       editDocument({ editLabel: "Decrease margin"}, function (selection) {
-      
         const { items } = selection;
-        for(let i = 1; i < items.length; i ++){
-          const moveItem= items[i];
-          moveItem.translation = {x: moveItem.translation.x - 8 * i, y: moveItem.translation.y}
+        if(shouldPlaceToHorizontal(items)){
+          for(let i = 1; i < items.length; i ++){
+              const moveItem= items[i];
+              moveItem.translation = {x: moveItem.translation.x - 8 * i, y: moveItem.translation.y}
+          }
+        }else if(shouldPlaceToVertical(items)){
+          for(let i = 1; i < items.length; i ++){
+              const moveItem= items[i];
+              moveItem.translation = {x: moveItem.translation.x, y: moveItem.translation.y - 8 * i}
+          }
+        }else{
+          return
         }
       })
   }
@@ -269,7 +286,7 @@ function create() {
 
 
   return panel;
-}
+};
 
 function show(event) {
   if (!panel) event.node.appendChild(create());
