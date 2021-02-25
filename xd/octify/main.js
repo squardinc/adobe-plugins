@@ -1,9 +1,8 @@
 const octify = (number) => Math.round(number / 8) * 8;
 
-/** パネル追加　ここから */
+
 const { selection } = require("scenegraph")
 let panel;
-/** パネル追加　ここまで */
 
 
 const octifyFn = (selection) => {
@@ -121,7 +120,6 @@ const octifyDifferenceFn = (selection) =>  {
 };
 
 
-/** パネル追加 　ここから*/
 function create() {
   const HTML =
       `<style>
@@ -147,6 +145,16 @@ function create() {
       <form class="automargin" method="dialog" id="main">
           <footer>
             <button id="ok" type="submit" uxp-variant="cta">Auto</button>
+          </footer>
+      </form>
+      <form class="autovertical" method="dialog" id="main">
+          <footer>
+            <button id="ok" type="submit" uxp-variant="cta">Vertical</button>
+          </footer>
+      </form>
+      <form class="autohorizon" method="dialog" id="main">
+          <footer>
+            <button id="ok" type="submit" uxp-variant="cta">Horizon</button>
           </footer>
       </form>
       <form class="increase" method="dialog" id="main">
@@ -229,6 +237,40 @@ function create() {
               }
           })
       }
+
+  function autoVertical() {
+    const { editDocument } = require("application");
+
+    editDocument({ editLabel: "Line up vertical"}, function (selection) {
+      const { items } = selection;
+      let moveDistance = 0;
+      const centerX = items[0].topLeftInParent.x + (items[0].width / 2);
+      const centerY = items[0].topLeftInParent.y + (items[0].height / 2);
+
+      for(let i = 1; i < items.length; i++){
+        moveDistance += items[i - 1].height + 8;
+
+        items[i].translation = {x: centerX - Math.abs(items[i].width / 2), y: items[0].translation.y + moveDistance}
+  }
+    })
+  }
+
+  function autoHorizon() {
+    const { editDocument } = require("application");
+
+    editDocument({ editLabel: "Line up horizon"}, function (selection) {
+      const { items } = selection;
+      let moveDistance = 0;
+      const centerY = items[0].topLeftInParent.y + (items[0].height / 2);
+
+      for(let i = 1; i < items.length; i++){
+        moveDistance += items[i - 1].width + 8;
+
+        items[i].translation = {x: items[0].translation.x + moveDistance, y: centerY - Math.abs(items[i].height / 2)}
+  }
+    })
+  }
+  
   
 
   function increaseMargin() {
@@ -251,7 +293,7 @@ function create() {
       }
 
     })
-  }
+  };
 
   function decreaseMargin() {
       const { editDocument } = require("application");
@@ -281,12 +323,14 @@ function create() {
 
 
   panel.querySelector('.automargin').addEventListener("submit", autoMargin);
+  panel.querySelector('.autovertical').addEventListener("submit", autoVertical);
+  panel.querySelector('.autohorizon').addEventListener("submit", autoHorizon);
   panel.querySelector('.increase').addEventListener("submit", increaseMargin);
   panel.querySelector('.decrease').addEventListener("submit", decreaseMargin);
 
 
   return panel;
-};
+}
 
 function show(event) {
   if (!panel) event.node.appendChild(create());
@@ -296,26 +340,27 @@ function update() {
   const { Rectangle } = require("scenegraph");
 
   let formAuto = document.querySelector('.automargin');
+  let formVer = document.querySelector('.autovertical');
+  let formHor = document.querySelector('.autohorizon');
   let formInc = document.querySelector('.increase');
   let formDec = document.querySelector('.decrease');
   let warning = document.querySelector("#warning");
   if (!selection || !(selection.items[0] instanceof Rectangle)) {
       formAuto.className = "hide";
+      formVer.className = "hide";
+      formHor.className = "hide";
       formInc.className = "hide";
       formDec.className = "hide";
       warning.className = "show";
   } else {
       formAuto.className = "show";
+      formVer.className = "show";
+      formHor.className = "show";
       formInc.className = "show";
       formDec.className = "show";
       warning.className = "hide";
   }
 }
-
-
-/** パネル追加 　ここまで*/
-
-
 
 module.exports = {
   octify,
