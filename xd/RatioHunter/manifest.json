@@ -1,0 +1,49 @@
+{
+  "id": "xxxxx",
+  "name": "RatioHunter",
+  "summary": "Optimize the box for artboards",
+  "description": "Makes the box optimized for artboards.\r\n- CinemaScope\r\n- Wide\r\n- Golden\r\n- Camera\r\n- Standard\r\n- Square",
+  "version": "1.0.0",
+  "host": {
+    "app": "XD",
+    "minVersion": "13.0.0"
+  },
+  "uiEntryPoints": [
+    {
+      "type": "menu",
+      "label": "hunt",
+      "commandId": "hunt",
+      "shortcut": { "mac": "Cmd+Ctrl+r", "win": "Ctrl+Alt+r" }
+    },
+    {
+      "type": "menu",
+      "label": "CinemaScope - 2.35:1",
+      "commandId": "cinemascope"
+    },
+    {
+      "type": "menu",
+      "label": "Wide - 16:9",
+      "commandId": "wide"
+    },
+    {
+      "type": "menu",
+      "label": "Golden - 1.618:1",
+      "commandId": "golden"
+    },
+    {
+      "type": "menu",
+      "label": "Camera - 3:2",
+      "commandId": "camera"
+    },
+    {
+      "type": "menu",
+      "label": "Standard - 4:3",
+      "commandId": "standard"
+    },
+    {
+      "type": "menu",
+      "label": "Square - 1:1",
+      "commandId": "square"
+    }
+  ]
+}
