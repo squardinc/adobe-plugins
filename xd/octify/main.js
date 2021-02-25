@@ -58,6 +58,26 @@ const shouldPlaceToVertical = (items) => {
   })
 }
 
+
+
+const findTop = (items) => {
+  let newItems = items.slice(0, items.length);
+  
+  newItems.sort(function (a, b) {
+    return a.topLeftInParent.y - b.topLeftInParent.y;
+  });
+  return newItems;
+}
+
+const findLeft = (items) => {
+  let newItems = items.slice(0, items.length);
+  
+  newItems.sort(function (a, b) {
+    return a.topLeftInParent.x - b.topLeftInParent.x;
+  });
+  return newItems;
+}
+
 const octifyDifferenceFn = (selection) =>  {
   const { items } = selection;
   if (items.length >= 2) {
@@ -142,27 +162,27 @@ function create() {
               display: none;
           }
       </style>
-      <form class="automargin" method="dialog" id="main">
+      <form class="automargin" method="dialog" id="automargin">
           <footer>
             <button id="ok" type="submit" uxp-variant="cta">Auto</button>
           </footer>
       </form>
-      <form class="autovertical" method="dialog" id="main">
+      <form class="autovertical" method="dialog" id="autovertical">
           <footer>
             <button id="ok" type="submit" uxp-variant="cta">Vertical</button>
           </footer>
       </form>
-      <form class="autohorizon" method="dialog" id="main">
+      <form class="autohorizon" method="dialog" id="autohorizon">
           <footer>
             <button id="ok" type="submit" uxp-variant="cta">Horizon</button>
           </footer>
       </form>
-      <form class="increase" method="dialog" id="main">
+      <form class="increase" method="dialog" id="increase">
           <footer>
             <button id="ok" type="submit" uxp-variant="cta">Plus</button>
           </footer>
       </form>
-      <form class="decrease" method="dialog" id="main">
+      <form class="decrease" method="dialog" id="decrease">
           <footer>
             <button id="ok" type="submit" uxp-variant="cta">Minus</button>
           </footer>
@@ -243,14 +263,15 @@ function create() {
 
     editDocument({ editLabel: "Line up vertical"}, function (selection) {
       const { items } = selection;
+      const newItems = findTop(items);
       let moveDistance = 0;
-      const centerX = items[0].topLeftInParent.x + (items[0].width / 2);
-      const centerY = items[0].topLeftInParent.y + (items[0].height / 2);
+      const centerX = newItems[0].topLeftInParent.x + (newItems[0].width / 2);
 
-      for(let i = 1; i < items.length; i++){
-        moveDistance += items[i - 1].height + 8;
+      console.log("------------------------------")
+      for(let i = 1; i < newItems.length; i++){
+        moveDistance += newItems[i - 1].height + 8;
 
-        items[i].translation = {x: centerX - Math.abs(items[i].width / 2), y: items[0].translation.y + moveDistance}
+        newItems[i].translation = {x: centerX - Math.abs(newItems[i].width / 2), y: newItems[0].translation.y + moveDistance}
   }
     })
   }
@@ -260,13 +281,13 @@ function create() {
 
     editDocument({ editLabel: "Line up horizon"}, function (selection) {
       const { items } = selection;
+      const newItems = findLeft(items);
       let moveDistance = 0;
-      const centerY = items[0].topLeftInParent.y + (items[0].height / 2);
+      const centerY = newItems[0].topLeftInParent.y + (newItems[0].height / 2);
+      for(let i = 1; i < newItems.length; i++){
+        moveDistance += newItems[i - 1].width + 8;
 
-      for(let i = 1; i < items.length; i++){
-        moveDistance += items[i - 1].width + 8;
-
-        items[i].translation = {x: items[0].translation.x + moveDistance, y: centerY - Math.abs(items[i].height / 2)}
+        newItems[i].translation = {x: newItems[0].translation.x + moveDistance, y: centerY - Math.abs(newItems[i].height / 2)}
   }
     })
   }
@@ -322,11 +343,11 @@ function create() {
   panel.innerHTML = HTML;
 
 
-  panel.querySelector('.automargin').addEventListener("submit", autoMargin);
-  panel.querySelector('.autovertical').addEventListener("submit", autoVertical);
-  panel.querySelector('.autohorizon').addEventListener("submit", autoHorizon);
-  panel.querySelector('.increase').addEventListener("submit", increaseMargin);
-  panel.querySelector('.decrease').addEventListener("submit", decreaseMargin);
+  panel.querySelector('#automargin').addEventListener("submit", autoMargin);
+  panel.querySelector('#autovertical').addEventListener("submit", autoVertical);
+  panel.querySelector('#autohorizon').addEventListener("submit", autoHorizon);
+  panel.querySelector('#increase').addEventListener("submit", increaseMargin);
+  panel.querySelector('#decrease').addEventListener("submit", decreaseMargin);
 
 
   return panel;
@@ -339,12 +360,13 @@ function show(event) {
 function update() {
   const { Rectangle } = require("scenegraph");
 
-  let formAuto = document.querySelector('.automargin');
-  let formVer = document.querySelector('.autovertical');
-  let formHor = document.querySelector('.autohorizon');
-  let formInc = document.querySelector('.increase');
-  let formDec = document.querySelector('.decrease');
+  let formAuto = document.querySelector('#automargin');
+  let formVer = document.querySelector('#autovertical');
+  let formHor = document.querySelector('#autohorizon');
+  let formInc = document.querySelector('#increase');
+  let formDec = document.querySelector('#decrease');
   let warning = document.querySelector("#warning");
+  
   if (!selection || !(selection.items[0] instanceof Rectangle)) {
       formAuto.className = "hide";
       formVer.className = "hide";
@@ -352,7 +374,10 @@ function update() {
       formInc.className = "hide";
       formDec.className = "hide";
       warning.className = "show";
-  } else {
+  } 
+  
+  else {
+    
       formAuto.className = "show";
       formVer.className = "show";
       formHor.className = "show";
@@ -360,6 +385,7 @@ function update() {
       formDec.className = "show";
       warning.className = "hide";
   }
+
 }
 
 module.exports = {
