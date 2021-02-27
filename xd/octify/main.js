@@ -1,7 +1,8 @@
 const octify = (number) => Math.round(number / 8) * 8;
 
 
-const { selection } = require("scenegraph")
+const { selection } = require("scenegraph");
+
 let panel;
 
 
@@ -56,7 +57,7 @@ const shouldPlaceToVertical = (items) => {
     return (item.topLeftInParent.y < itemOneRightBottom.y ||
       item.topLeftInParent.x > itemOneRightBottom.x)
   })
-}
+};
 
 
 
@@ -67,7 +68,7 @@ const findTop = (items) => {
     return a.topLeftInParent.y - b.topLeftInParent.y;
   });
   return newItems;
-}
+};
 
 const findLeft = (items) => {
   let newItems = items.slice(0, items.length);
@@ -76,7 +77,7 @@ const findLeft = (items) => {
     return a.topLeftInParent.x - b.topLeftInParent.x;
   });
   return newItems;
-}
+};
 
 const octifyDifferenceFn = (selection) =>  {
   const { items } = selection;
@@ -190,8 +191,6 @@ function create() {
       <p id="warning">This plugin requires you to select a rectangle in the document. Please select a rectangle.</p>
       `
 
-  
-
       function autoMargin() {
           const { editDocument } = require("application");
           
@@ -265,9 +264,16 @@ function create() {
       const { items } = selection;
       const newItems = findTop(items);
       let moveDistance = 0;
-      const centerX = newItems[0].topLeftInParent.x + (newItems[0].width / 2);
+      const centerX = newItems[0].topLeftInParent.x + (newItems[0].width / 2);  
+      console.log("----------------------ここから")
+      console.log(items);
+      console.log("---------間--------------")
+      items.sort(function (a, b) {
+        return a.topLeftInParent.y - b.topLeftInParent.y;
+      });
+      console.log(items);
 
-      console.log("------------------------------")
+      console.log("------------------------------ここまで")
       for(let i = 1; i < newItems.length; i++){
         moveDistance += newItems[i - 1].height + 8;
 
@@ -290,8 +296,8 @@ function create() {
         newItems[i].translation = {x: newItems[0].translation.x + moveDistance, y: centerY - Math.abs(newItems[i].height / 2)}
   }
     })
-  }
-  
+    
+  };
   
 
   function increaseMargin() {
@@ -299,21 +305,27 @@ function create() {
     
     editDocument({ editLabel: "Increase margin"}, function (selection) {
       const { items } = selection;
-      if(shouldPlaceToHorizontal(items)){
-        for(let i = 1; i < items.length; i ++){
-            const moveItem= items[i];
+      const itemsV = findTop(items);
+      const itemsH = findLeft(items);
+        if(shouldPlaceToHorizontal(itemsH)){
+        for(let i = 1; i < itemsH.length; i ++){
+            const moveItem= itemsH[i];
             moveItem.translation = {x: moveItem.translation.x + 8 * i, y: moveItem.translation.y}
+
         }
-      }else if(shouldPlaceToVertical(items)){
-        for(let i = 1; i < items.length; i ++){
-            const moveItem= items[i];
+      }else if(shouldPlaceToVertical(itemsV)){
+        for(let i = 1; i < itemsV.length; i ++){
+            const moveItem= itemsV[i];
             moveItem.translation = {x: moveItem.translation.x, y: moveItem.translation.y + 8 * i}
         }
       }else{
+        console.log("-------------");
+        console.log(itemsV)
+        console.log("縦でも横でもない")
         return
       }
 
-    })
+    });
   };
 
   function decreaseMargin() {
@@ -321,23 +333,23 @@ function create() {
       
       editDocument({ editLabel: "Decrease margin"}, function (selection) {
         const { items } = selection;
-        if(shouldPlaceToHorizontal(items)){
-          for(let i = 1; i < items.length; i ++){
-              const moveItem= items[i];
+        const itemsV = findTop(items);
+         const itemsH = findLeft(items);
+        if(shouldPlaceToHorizontal(itemsH)){
+          for(let i = 1; i < itemsH.length; i ++){
+              const moveItem= itemsH[i];
               moveItem.translation = {x: moveItem.translation.x - 8 * i, y: moveItem.translation.y}
           }
-        }else if(shouldPlaceToVertical(items)){
-          for(let i = 1; i < items.length; i ++){
-              const moveItem= items[i];
+        }else if(shouldPlaceToVertical(itemsV)){
+          for(let i = 1; i < itemsV.length; i ++){
+              const moveItem= itemsV[i];
               moveItem.translation = {x: moveItem.translation.x, y: moveItem.translation.y - 8 * i}
           }
         }else{
           return
         }
-      })
-  }
-
-  
+      });
+  };
 
   panel = document.createElement("div");
   panel.innerHTML = HTML;
@@ -351,11 +363,11 @@ function create() {
 
 
   return panel;
-}
+};
 
 function show(event) {
   if (!panel) event.node.appendChild(create());
-}
+};
 
 function update() {
   const { Rectangle } = require("scenegraph");
@@ -386,12 +398,13 @@ function update() {
       warning.className = "hide";
   }
 
-}
+};
 
 module.exports = {
   octify,
   shouldPlaceToHorizontal,
   shouldPlaceToVertical,
+  findTop,
   commands: {
     octify: octifyFn,
     octifyWidth: octifyWidthFn,
