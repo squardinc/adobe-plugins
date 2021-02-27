@@ -37,35 +37,33 @@ const octifyHeightFn = (selection) => {
 
 const shouldPlaceToHorizontal = (items) => {
   const itemOneRightBottom = {
-    x: items[0].topLeftInParent.x + items[0].width,
-    y: items[0].topLeftInParent.y + items[0].height,
+    x: items[0].boundsInParent.x + items[0].boundsInParent.width,
+    y: items[0].boundsInParent.y + items[0].boundsInParent.height,
   };
   return !items.find((item,idx) => {
     if(idx === 0) return false
-    return (item.topLeftInParent.y  > itemOneRightBottom.y ||
-    item.topLeftInParent.x < itemOneRightBottom.x )
+    return (item.boundsInParent.y  > itemOneRightBottom.y ||
+    item.boundsInParent.x < itemOneRightBottom.x )
   })
 }
 
 const shouldPlaceToVertical = (items) => {
   const itemOneRightBottom = {
-    x: items[0].topLeftInParent.x + items[0].width,
-    y: items[0].topLeftInParent.y + items[0].height,
+    x: items[0].boundsInParent.x + items[0].boundsInParent.width,
+    y: items[0].boundsInParent.y + items[0].boundsInParent.height,
   };
   return !items.find((item, idx) => {
     if(idx === 0) return false
-    return (item.topLeftInParent.y < itemOneRightBottom.y ||
-      item.topLeftInParent.x > itemOneRightBottom.x)
+    return (item.boundsInParent.y < itemOneRightBottom.y ||
+      item.boundsInParent.x > itemOneRightBottom.x)
   })
 };
-
-
 
 const findTop = (items) => {
   let newItems = items.slice(0, items.length);
   
   newItems.sort(function (a, b) {
-    return a.topLeftInParent.y - b.topLeftInParent.y;
+    return a.boundsInParent.y - b.boundsInParent.y;
   });
   return newItems;
 };
@@ -74,72 +72,80 @@ const findLeft = (items) => {
   let newItems = items.slice(0, items.length);
   
   newItems.sort(function (a, b) {
-    return a.topLeftInParent.x - b.topLeftInParent.x;
+    return a.boundsInParent.x - b.boundsInParent.x;
   });
   return newItems;
 };
 
 const octifyDifferenceFn = (selection) =>  {
   const { items } = selection;
-  if (items.length >= 2) {
+              const itemsV = findTop(items);
+              const itemsH = findLeft(items);
 
-    const centerX = items[0].topLeftInParent.x + (items[0].width / 2);
-    const centerY = items[0].topLeftInParent.y + (items[0].height / 2);
+              if (items.length >= 2) {
+            
+                const centerX = items[0].topLeftInParent.x + (items[0].boundsInParent.width / 2);
+                const centerY = items[0].topLeftInParent.y + (items[0].boundsInParent.height / 2);
+            
+                const itemOneRightBottom = {
+                  x: items[0].topLeftInParent.x + items[0].boundsInParent.width,
+                  y: items[0].topLeftInParent.y + items[0].boundsInParent.height,
+                };
+            
+                if(shouldPlaceToHorizontal(itemsH)){
+                  let totalDiffX = 0;
+                  let moveDistance = 0;
+            
+                  for(let i = 1; i < items.length; i++){
+                    let itemOne = itemsH[i - 1];
+                    let itemTwo = itemsH[i];
+            
+                    const diffX = itemTwo.topLeftInParent.x - (itemOne.topLeftInParent.x + itemOne.boundsInParent.width);
+            
+                    totalDiffX += diffX;
+                 }
+                  const averageDiffX8 = octify(totalDiffX / ( items.length - 1 ));
+            
+            
+                  for(let i = 1; i < itemsH.length; i++){
+              
+                    moveDistance += itemsH[i - 1].boundsInParent.width + Math.abs(averageDiffX8);
 
-    const itemOneRightBottom = {
-      x: items[0].topLeftInParent.x + items[0].width,
-      y: items[0].topLeftInParent.y + items[0].height,
-    };
+                    const moveCoordX = itemsH[0].translation.x + moveDistance;
+                    const moveCoordY = centerY - Math.abs(itemsH[i].boundsInParent.height /2 );
 
-    if(shouldPlaceToHorizontal(items)){
-      let totalDiffX = 0;
-      let moveDistance = 0;
+                    itemsH[i].moveInParentCoordinates(moveCoordX - itemsH[i].boundsInParent.x, moveCoordY - itemsH[i].boundsInParent.y);
+                  }
+                } else if(shouldPlaceToVertical(itemsV)){
+                  let totalDiffV = 0;
+                  let moveDistance = 0;
+            
+                  for(let i = 1; i < itemsV.length; i++){
+                    let itemOne = itemsV[i - 1];
+                    let itemTwo = itemsV[i];
+            
+                    const diffV = itemTwo.topLeftInParent.y - (itemOne.topLeftInParent.y + itemOne.boundsInParent.height);
+            
+                    totalDiffV += diffV;
+                 }
+                  const averageDiffV8 = octify(totalDiffV / ( itemsV.length - 1 ));
+            
+            
+                  for(let i = 1; i < itemsV.length; i++){
+              
+                    moveDistance += itemsV[i - 1].boundsInParent.height + Math.abs(averageDiffV8);
 
-      for(let i = 1; i < items.length; i++){
-        let itemOne = items[i - 1];
-        let itemTwo = items[i];
-
-        const diffX = itemTwo.topLeftInParent.x - (itemOne.topLeftInParent.x + itemOne.width);
-
-        totalDiffX += diffX;
-     }
-      const averageDiffX8 = octify(totalDiffX / ( items.length - 1 ));
-
-
-      for(let i = 1; i < items.length; i++){
-  
-        moveDistance += items[i - 1].width + Math.abs(averageDiffX8);
-
-        items[i].translation = {x: items[0].translation.x + moveDistance, y: centerY - Math.abs(items[i].height /2 )}
-      }
-    } else if(shouldPlaceToVertical(items)){
-      let totalDiffV = 0;
-      let moveDistance = 0;
-
-      for(let i = 1; i < items.length; i++){
-        let itemOne = items[i - 1];
-        let itemTwo = items[i];
-
-        const diffV = itemTwo.topLeftInParent.y - (itemOne.topLeftInParent.y + itemOne.height);
-
-        totalDiffV += diffV;
-     }
-      const averageDiffV8 = octify(totalDiffV / ( items.length - 1 ));
-
-
-      for(let i = 1; i < items.length; i++){
-  
-        moveDistance += items[i - 1].height + Math.abs(averageDiffV8);
-
-        items[i].translation = {x: centerX - Math.abs(items[i].width / 2), y: items[0].translation.y + moveDistance}
-      }
-    } else{
-      console.log("縦にも横にも並んでいない");
-      return
-    }
-  }
+                    const moveCoordX = centerX - Math.abs(itemsV[i].boundsInParent.width / 2);
+                    const moveCoordY = itemsV[0].boundsInParent.y + moveDistance;
+            
+                    itemsV[i].moveInParentCoordinates(moveCoordX - itemsV[i].boundsInParent.x, moveCoordY - itemsV[i].boundsInParent.y);
+                  }
+                } else{
+                  console.log("縦にも横にも並んでいない");
+                  return
+                }
+              }
 };
-
 
 function create() {
   const HTML =
@@ -188,7 +194,6 @@ function create() {
             <button id="ok" type="submit" uxp-variant="cta">Minus</button>
           </footer>
       </form>
-      <p id="warning">This plugin requires you to select a rectangle in the document. Please select a rectangle.</p>
       `
 
       function autoMargin() {
@@ -197,57 +202,66 @@ function create() {
           editDocument({ editLabel: "Auto margin"}, function (selection) {
           
               const { items } = selection;
+              const itemsV = findTop(items);
+              const itemsH = findLeft(items);
+
               if (items.length >= 2) {
             
-                const centerX = items[0].topLeftInParent.x + (items[0].width / 2);
-                const centerY = items[0].topLeftInParent.y + (items[0].height / 2);
+                const centerX = items[0].topLeftInParent.x + (items[0].boundsInParent.width / 2);
+                const centerY = items[0].topLeftInParent.y + (items[0].boundsInParent.height / 2);
             
                 const itemOneRightBottom = {
-                  x: items[0].topLeftInParent.x + items[0].width,
-                  y: items[0].topLeftInParent.y + items[0].height,
+                  x: items[0].topLeftInParent.x + items[0].boundsInParent.width,
+                  y: items[0].topLeftInParent.y + items[0].boundsInParent.height,
                 };
             
-                if(shouldPlaceToHorizontal(items)){
+                if(shouldPlaceToHorizontal(itemsH)){
                   let totalDiffX = 0;
                   let moveDistance = 0;
             
                   for(let i = 1; i < items.length; i++){
-                    let itemOne = items[i - 1];
-                    let itemTwo = items[i];
+                    let itemOne = itemsH[i - 1];
+                    let itemTwo = itemsH[i];
             
-                    const diffX = itemTwo.topLeftInParent.x - (itemOne.topLeftInParent.x + itemOne.width);
+                    const diffX = itemTwo.topLeftInParent.x - (itemOne.topLeftInParent.x + itemOne.boundsInParent.width);
             
                     totalDiffX += diffX;
                  }
                   const averageDiffX8 = octify(totalDiffX / ( items.length - 1 ));
             
             
-                  for(let i = 1; i < items.length; i++){
+                  for(let i = 1; i < itemsH.length; i++){
               
-                    moveDistance += items[i - 1].width + Math.abs(averageDiffX8);
-            
-                    items[i].translation = {x: items[0].translation.x + moveDistance, y: centerY - Math.abs(items[i].height /2 )}
+                    moveDistance += itemsH[i - 1].boundsInParent.width + Math.abs(averageDiffX8);
+
+                    const moveCoordX = itemsH[0].translation.x + moveDistance;
+                    const moveCoordY = centerY - Math.abs(itemsH[i].boundsInParent.height /2 );
+
+                    itemsH[i].moveInParentCoordinates(moveCoordX - itemsH[i].boundsInParent.x, moveCoordY - itemsH[i].boundsInParent.y);
                   }
-                } else if(shouldPlaceToVertical(items)){
+                } else if(shouldPlaceToVertical(itemsV)){
                   let totalDiffV = 0;
                   let moveDistance = 0;
             
-                  for(let i = 1; i < items.length; i++){
-                    let itemOne = items[i - 1];
-                    let itemTwo = items[i];
+                  for(let i = 1; i < itemsV.length; i++){
+                    let itemOne = itemsV[i - 1];
+                    let itemTwo = itemsV[i];
             
-                    const diffV = itemTwo.topLeftInParent.y - (itemOne.topLeftInParent.y + itemOne.height);
+                    const diffV = itemTwo.topLeftInParent.y - (itemOne.topLeftInParent.y + itemOne.boundsInParent.height);
             
                     totalDiffV += diffV;
                  }
-                  const averageDiffV8 = octify(totalDiffV / ( items.length - 1 ));
+                  const averageDiffV8 = octify(totalDiffV / ( itemsV.length - 1 ));
             
             
-                  for(let i = 1; i < items.length; i++){
+                  for(let i = 1; i < itemsV.length; i++){
               
-                    moveDistance += items[i - 1].height + Math.abs(averageDiffV8);
+                    moveDistance += itemsV[i - 1].boundsInParent.height + Math.abs(averageDiffV8);
+
+                    const moveCoordX = centerX - Math.abs(itemsV[i].boundsInParent.width / 2);
+                    const moveCoordY = itemsV[0].boundsInParent.y + moveDistance;
             
-                    items[i].translation = {x: centerX - Math.abs(items[i].width / 2), y: items[0].translation.y + moveDistance}
+                    itemsV[i].moveInParentCoordinates(moveCoordX - itemsV[i].boundsInParent.x, moveCoordY - itemsV[i].boundsInParent.y);
                   }
                 } else{
                   console.log("縦にも横にも並んでいない");
@@ -264,20 +278,13 @@ function create() {
       const { items } = selection;
       const newItems = findTop(items);
       let moveDistance = 0;
-      const centerX = newItems[0].topLeftInParent.x + (newItems[0].width / 2);  
-      console.log("----------------------ここから")
-      console.log(items);
-      console.log("---------間--------------")
-      items.sort(function (a, b) {
-        return a.topLeftInParent.y - b.topLeftInParent.y;
-      });
-      console.log(items);
-
-      console.log("------------------------------ここまで")
+      const centerX = newItems[0].boundsInParent.x + (newItems[0].boundsInParent.width / 2);  
       for(let i = 1; i < newItems.length; i++){
-        moveDistance += newItems[i - 1].height + 8;
+        moveDistance += newItems[i - 1].boundsInParent.height + 8;
+        const moveCoordX = centerX - Math.abs(newItems[i].boundsInParent.width / 2);
+        const moveCoordY = newItems[0].boundsInParent.y + moveDistance;
 
-        newItems[i].translation = {x: centerX - Math.abs(newItems[i].width / 2), y: newItems[0].translation.y + moveDistance}
+        newItems[i].moveInParentCoordinates(moveCoordX - newItems[i].boundsInParent.x, moveCoordY - newItems[i].boundsInParent.y);
   }
     })
   }
@@ -285,33 +292,33 @@ function create() {
   function autoHorizon() {
     const { editDocument } = require("application");
 
-    editDocument({ editLabel: "Line up horizon"}, function (selection) {
+    editDocument({ editLabel: "Line up vertical"}, function (selection) {
       const { items } = selection;
-      const newItems = findLeft(items);
+      const newItems = findTop(items);
       let moveDistance = 0;
-      const centerY = newItems[0].topLeftInParent.y + (newItems[0].height / 2);
+      const centerY = newItems[0].boundsInParent.y + (newItems[0].boundsInParent.height / 2);  
       for(let i = 1; i < newItems.length; i++){
-        moveDistance += newItems[i - 1].width + 8;
+        moveDistance += newItems[i - 1].boundsInParent.width + 8;
 
-        newItems[i].translation = {x: newItems[0].translation.x + moveDistance, y: centerY - Math.abs(newItems[i].height / 2)}
+        const moveCoordX = newItems[0].boundsInParent.x + moveDistance;
+        const moveCoordY = centerY - Math.abs(newItems[i].boundsInParent.height / 2);
+
+        newItems[i].moveInParentCoordinates(moveCoordX - newItems[i].boundsInParent.x, moveCoordY - newItems[i].boundsInParent.y);
   }
     })
-    
-  };
-  
+  }
 
   function increaseMargin() {
     const { editDocument } = require("application");
     
-    editDocument({ editLabel: "Increase margin"}, function (selection) {
+    editDocument({ editLabel: "Decrease margin"}, function (selection) {
       const { items } = selection;
       const itemsV = findTop(items);
-      const itemsH = findLeft(items);
-        if(shouldPlaceToHorizontal(itemsH)){
+       const itemsH = findLeft(items);
+      if(shouldPlaceToHorizontal(itemsH)){
         for(let i = 1; i < itemsH.length; i ++){
             const moveItem= itemsH[i];
             moveItem.translation = {x: moveItem.translation.x + 8 * i, y: moveItem.translation.y}
-
         }
       }else if(shouldPlaceToVertical(itemsV)){
         for(let i = 1; i < itemsV.length; i ++){
@@ -319,14 +326,10 @@ function create() {
             moveItem.translation = {x: moveItem.translation.x, y: moveItem.translation.y + 8 * i}
         }
       }else{
-        console.log("-------------");
-        console.log(itemsV)
-        console.log("縦でも横でもない")
         return
       }
-
     });
-  };
+};
 
   function decreaseMargin() {
       const { editDocument } = require("application");
@@ -354,51 +357,36 @@ function create() {
   panel = document.createElement("div");
   panel.innerHTML = HTML;
 
-
   panel.querySelector('#automargin').addEventListener("submit", autoMargin);
   panel.querySelector('#autovertical').addEventListener("submit", autoVertical);
   panel.querySelector('#autohorizon').addEventListener("submit", autoHorizon);
   panel.querySelector('#increase').addEventListener("submit", increaseMargin);
   panel.querySelector('#decrease').addEventListener("submit", decreaseMargin);
 
-
   return panel;
 };
 
 function show(event) {
-  if (!panel) event.node.appendChild(create());
-};
 
-function update() {
+  
+  if (!panel) event.node.appendChild(create());
+
   const { Rectangle } = require("scenegraph");
 
-  let formAuto = document.querySelector('#automargin');
-  let formVer = document.querySelector('#autovertical');
-  let formHor = document.querySelector('#autohorizon');
-  let formInc = document.querySelector('#increase');
-  let formDec = document.querySelector('#decrease');
-  let warning = document.querySelector("#warning");
-  
-  if (!selection || !(selection.items[0] instanceof Rectangle)) {
-      formAuto.className = "hide";
-      formVer.className = "hide";
-      formHor.className = "hide";
-      formInc.className = "hide";
-      formDec.className = "hide";
-      warning.className = "show";
-  } 
-  
-  else {
-    
+      let formAuto = document.querySelector('#automargin');
+      let formVer = document.querySelector('#autovertical');
+      let formHor = document.querySelector('#autohorizon');
+      let formInc = document.querySelector('#increase');
+      let formDec = document.querySelector('#decrease');
+
       formAuto.className = "show";
       formVer.className = "show";
       formHor.className = "show";
       formInc.className = "show";
       formDec.className = "show";
-      warning.className = "hide";
-  }
-
 };
+
+
 
 module.exports = {
   octify,
@@ -415,7 +403,6 @@ module.exports = {
   panels: {
     octifyMarginPanel: {
         show,
-        update
     }
   }
   /**パネル追加ここまで */
