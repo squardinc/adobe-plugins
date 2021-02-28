@@ -63,7 +63,7 @@ const findTop = (items) => {
   let newItems = items.slice(0, items.length);
   
   newItems.sort(function (a, b) {
-    return a.boundsInParent.y - b.boundsInParent.y;
+    return a.globalBounds.y - b.globalBounds.y;
   });
   return newItems;
 };
@@ -72,7 +72,7 @@ const findLeft = (items) => {
   let newItems = items.slice(0, items.length);
   
   newItems.sort(function (a, b) {
-    return a.boundsInParent.x - b.boundsInParent.x;
+    return a.globalBounds.x - b.globalBounds.x;
   });
   return newItems;
 };
@@ -141,7 +141,6 @@ const octifyDifferenceFn = (selection) =>  {
                     itemsV[i].moveInParentCoordinates(moveCoordX - itemsV[i].boundsInParent.x, moveCoordY - itemsV[i].boundsInParent.y);
                   }
                 } else{
-                  console.log("縦にも横にも並んでいない");
                   return
                 }
               }
@@ -264,7 +263,6 @@ function create() {
                     itemsV[i].moveInParentCoordinates(moveCoordX - itemsV[i].boundsInParent.x, moveCoordY - itemsV[i].boundsInParent.y);
                   }
                 } else{
-                  console.log("縦にも横にも並んでいない");
                   return
                 }
               }
@@ -294,16 +292,16 @@ function create() {
 
     editDocument({ editLabel: "Line up vertical"}, function (selection) {
       const { items } = selection;
-      const newItems = findTop(items);
+      const newItems = findLeft(items);
       let moveDistance = 0;
-      const centerY = newItems[0].boundsInParent.y + (newItems[0].boundsInParent.height / 2);  
+      const centerY = newItems[0].globalBounds.y + (newItems[0].globalBounds.height / 2);  
       for(let i = 1; i < newItems.length; i++){
-        moveDistance += newItems[i - 1].boundsInParent.width + 8;
+        moveDistance += newItems[i - 1].globalBounds.width + 8;
 
-        const moveCoordX = newItems[0].boundsInParent.x + moveDistance;
-        const moveCoordY = centerY - Math.abs(newItems[i].boundsInParent.height / 2);
+        const moveCoordX = newItems[0].globalBounds.x + moveDistance;
+        const moveCoordY = centerY - Math.abs(newItems[i].globalBounds.height / 2);
 
-        newItems[i].moveInParentCoordinates(moveCoordX - newItems[i].boundsInParent.x, moveCoordY - newItems[i].boundsInParent.y);
+        newItems[i].moveInParentCoordinates(moveCoordX - newItems[i].globalBounds.x, moveCoordY - newItems[i].globalBounds.y);
   }
     })
   }
@@ -371,19 +369,6 @@ function show(event) {
   
   if (!panel) event.node.appendChild(create());
 
-  const { Rectangle } = require("scenegraph");
-
-      let formAuto = document.querySelector('#automargin');
-      let formVer = document.querySelector('#autovertical');
-      let formHor = document.querySelector('#autohorizon');
-      let formInc = document.querySelector('#increase');
-      let formDec = document.querySelector('#decrease');
-
-      formAuto.className = "show";
-      formVer.className = "show";
-      formHor.className = "show";
-      formInc.className = "show";
-      formDec.className = "show";
 };
 
 
@@ -399,11 +384,9 @@ module.exports = {
     octifyHeight: octifyHeightFn,
     octifyDiff: octifyDifferenceFn,
   },
-  /**パネル追加ここから */
   panels: {
     octifyMarginPanel: {
         show,
     }
   }
-  /**パネル追加ここまで */
 };
