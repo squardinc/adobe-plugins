@@ -1,5 +1,5 @@
 const { describe, test, expect } = require("@jest/globals");
-const { octify ,shouldPlaceToHorizontal, shouldPlaceToVertical, adjustV, adjustH} = require("/Users/yuuki/Library/Application Support/Adobe/Adobe XD/develop/octify/main.js");
+const { octify ,shouldPlaceToHorizontal, shouldPlaceToVertical, adjustV, adjustH, makeMoveCoordX, makeMoveCoordY} = require("/Users/yuuki/Library/Application Support/Adobe/Adobe XD/develop/octify/main.js");
 
 describe("Octify", () => {
   describe("Octify", () => {
@@ -282,5 +282,78 @@ describe("Octify", () => {
     })
     
   })
+
+  describe("makeMoveCoordX", () => {
+    const firstItem = {
+      globalBounds: {
+        x: 0,
+        y: 0,
+        width: 10,
+        height: 10,
+      }
+    };
+    test(" 正しく移動さきのポジションが作れているか（横）", () => {
+      const trueArray = [
+        {x: 18, y: -5},
+        {x: 46, y: -10},
+      ]
+      const Item = [
+        firstItem,
+        {
+          globalBounds: {
+            x: firstItem.globalBounds.x + 15,
+            y: firstItem.globalBounds.y,
+            width: firstItem.globalBounds.width + 10,
+            height: firstItem.globalBounds.height + 10,
+          }
+        },
+        {
+          globalBounds: {
+          x: firstItem.globalBounds.x + 45,
+          y: firstItem.globalBounds.y,
+          width: firstItem.globalBounds.width + 20,
+          height: firstItem.globalBounds.height + 20,
+          }
+        }
+      ]
+      expect(makeMoveCoordX(Item)).toEqual( trueArray );
+    })
+  })
   
+  describe("makeMoveCoordY", () => {
+    const firstItem = {
+      globalBounds: {
+        x: 0,
+        y: 0,
+        width: 10,
+        height: 10,
+      }
+    };
+    test(" 正しく移動さきのポジションが作れているか(縦)", () => {
+      const trueArray = [
+        {x: -5, y: 18},
+        {x: -10, y: 46},
+      ]
+      const Item = [
+        firstItem,
+        {
+          globalBounds: {
+            x: firstItem.globalBounds.x,
+            y: firstItem.globalBounds.y + 15,
+            width: firstItem.globalBounds.width + 10,
+            height: firstItem.globalBounds.height + 10,
+          }
+        },
+        {
+          globalBounds: {
+          x: firstItem.globalBounds.x,
+          y: firstItem.globalBounds.y + 45,
+          width: firstItem.globalBounds.width + 20,
+          height: firstItem.globalBounds.height + 20,
+          }
+        }
+      ]
+      expect(makeMoveCoordY(Item)).toEqual( trueArray );
+    })
+  })
 });
