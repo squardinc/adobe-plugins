@@ -45,11 +45,11 @@
     {
       "type": "menu",
       "label": "margin",
-      "commandId": "octifyDiff"
+      "commandId": "octifyMargin"
     },
     {
       "type": "panel",
-      "label": "Margin Panel",
+      "label": "margin panel",
       "panelId": "octifyMarginPanel"
     }
   ]

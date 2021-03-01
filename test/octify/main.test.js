@@ -1,5 +1,5 @@
 const { describe, test, expect } = require("@jest/globals");
-const { octify ,shouldPlaceToHorizontal, shouldPlaceToVertical } = require("../../xd/octify/main");
+const { octify ,shouldPlaceToHorizontal, shouldPlaceToVertical, adjustV, adjustH} = require("/Users/yuuki/Library/Application Support/Adobe/Adobe XD/develop/octify/main.js");
 
 describe("Octify", () => {
   describe("Octify", () => {
@@ -19,26 +19,26 @@ describe("Octify", () => {
 
   describe("shouldPlaceToHorizontal", () => {
     const firstItem = {
-      topLeftInParent: {
+      globalBounds: {
         x: 0,
         y: 0,
-      },
-      width: 10,
-      height:20,
+        width: 10,
+        height:20,
+      }
     }
 
     const items = [
       firstItem,
       {
-        topLeftInParent: {
-          x: firstItem.width + 1,
-          y: firstItem.height-1,
+        globalBounds: {
+          x: firstItem.globalBounds.width + 1,
+          y: firstItem.globalBounds.height-1,
         },
       },
       {
-        topLeftInParent: {
-          x: firstItem.width + 0.1,
-          y: firstItem.height-0.1,
+        globalBounds: {
+          x: firstItem.globalBounds.width + 0.1,
+          y: firstItem.globalBounds.height-0.1,
         },
       }
     ]
@@ -49,9 +49,9 @@ describe("Octify", () => {
       const items2 = [
         items[0],
         {
-          topLeftInParent: {
-            x: items[0].topLeftInParent.x, 
-            y: firstItem.height+1,
+          globalBounds: {
+            x: items[0].globalBounds.x, 
+            y: firstItem.globalBounds.height+1,
           }
         },
         items[2],
@@ -62,9 +62,9 @@ describe("Octify", () => {
       const items3 = [
         items[0],
         {
-          topLeftInParent: {
-            x: firstItem.width-1, 
-            y: items[1].height,
+          globalBounds: {
+            x: firstItem.globalBounds.width-1, 
+            y: items[1].globalBounds.height,
           }
         },
         items[2],
@@ -75,26 +75,26 @@ describe("Octify", () => {
 
   describe("shouldPlaceToVertical", () => {
     const firstItem = {
-      topLeftInParent: {
+      globalBounds: {
         x: 0,
         y: 0,
-      },
-      width: 10,
-      height:20,
+        width: 10,
+        height:20,
+      }
     }
 
     const items = [
       firstItem,
       {
-        topLeftInParent: {
-          x: firstItem.width - 1,
-          y: firstItem.height + 1,
+        globalBounds: {
+          x: firstItem.globalBounds.width - 1,
+          y: firstItem.globalBounds.height + 1,
         },
       },
       {
-        topLeftInParent: {
-          x: firstItem.width - 0.1,
-          y: firstItem.height + 0.1,
+        globalBounds: {
+          x: firstItem.globalBounds.width - 0.1,
+          y: firstItem.globalBounds.height + 0.1,
         },
       }
     ]
@@ -105,9 +105,9 @@ describe("Octify", () => {
       const items2 = [
         items[0],
         {
-          topLeftInParent: {
-            x: firstItem.width + 1,
-            y: items[1].topLeftInParent.y,
+          globalBounds: {
+            x: firstItem.globalBounds.width + 1,
+            y: items[1].globalBounds.y,
           }
         },
         items[2],
@@ -118,9 +118,9 @@ describe("Octify", () => {
       const items3 = [
         items[0],
         {
-          topLeftInParent: {
-            x: items[1].width,
-            y: firstItem.height - 1
+          globalBounds: {
+            x: items[1].globalBounds.width,
+            y: firstItem.globalBounds.height - 1
           }
         },
         items[2],
@@ -128,4 +128,159 @@ describe("Octify", () => {
       expect(shouldPlaceToVertical(items3)).toBeFalsy();
     })
   })
+
+  describe("adjustV", () => {
+    const firstItem = {
+      globalBounds: {
+        x: 0,
+        y: 0,
+      }
+    };
+    test(" whether it arrange correctly, when in reverse order ", () => {
+      const trueItems = [
+        firstItem,
+        {
+          globalBounds: {
+            x: firstItem.globalBounds.x,
+            y: firstItem.globalBounds.y + 3,
+          }
+        },
+        {
+          globalBounds: {
+            x: firstItem.globalBounds.x,
+            y: firstItem.globalBounds.y + 5,
+          }
+        },
+      ]
+      const items = [
+        {
+          globalBounds: {
+            x: firstItem.globalBounds.x,
+            y: firstItem.globalBounds.y + 5,
+          }
+        },
+        {
+            globalBounds: {
+              x: firstItem.globalBounds.x,
+              y: firstItem.globalBounds.y + 3
+          }
+        },
+          firstItem   
+      ]
+      expect(adjustV(items)).toEqual( trueItems );
+    })
+    test(" whether it arrange correctly, when one item's x is laeger than lead item's x", () => {
+      const trueItems2 = [
+        firstItem,
+        {
+          globalBounds: {
+            x: firstItem.globalBounds.x + 1,
+            y: firstItem.globalBounds.y + 3,
+          }
+        },
+        {
+          globalBounds: {
+            x: firstItem.globalBounds.x,
+            y: firstItem.globalBounds.y + 5,
+          }
+        },
+      ]
+      const items2 = [
+        {
+          globalBounds: {
+            x: firstItem.globalBounds.x,
+            y: firstItem.globalBounds.y + 5,
+          }
+        },
+        {
+          globalBounds: 
+          {
+            x: firstItem.globalBounds.x + 1,
+            y: firstItem.globalBounds.y + 3,
+          }
+        },
+        firstItem
+      ]
+      expect(adjustV(items2)).toEqual( trueItems2 );
+    })
+    
+  })
+
+  describe("adjustH", () => {
+    const firstItem = {
+      globalBounds: {
+        x: 0,
+        y: 0,
+      }
+    };
+    test(" whether it arrange correctly, when in reverse order ", () => {
+      const trueItems = [
+        firstItem,
+        {
+          globalBounds: {
+            x: firstItem.globalBounds.x + 3,
+            y: firstItem.globalBounds.y,
+          }
+        },
+        {
+          globalBounds: {
+            x: firstItem.globalBounds.x + 5,
+            y: firstItem.globalBounds.y,
+          }
+        },
+      ]
+      const items = [
+        {
+          globalBounds: {
+            x: firstItem.globalBounds.x + 5,
+            y: firstItem.globalBounds.y,
+          }
+        },
+        {
+            globalBounds: {
+              x: firstItem.globalBounds.x + 3,
+              y: firstItem.globalBounds.y
+          }
+        },
+          firstItem   
+      ]
+      expect(adjustH(items)).toEqual( trueItems );
+    })
+    test(" whether it arrange correctly, when one item's x is laeger than lead item's x", () => {
+      const trueItems2 = [
+        firstItem,
+        {
+          globalBounds: {
+            x: firstItem.globalBounds.x + 3,
+            y: firstItem.globalBounds.y + 1,
+          }
+        },
+        {
+          globalBounds: {
+            x: firstItem.globalBounds.x + 5,
+            y: firstItem.globalBounds.y,
+          }
+        },
+      ]
+      const items2 = [
+        {
+          globalBounds: {
+            x: firstItem.globalBounds.x + 5,
+            y: firstItem.globalBounds.y,
+          }
+        },
+        {
+          globalBounds: 
+          {
+            x: firstItem.globalBounds.x + 3,
+            y: firstItem.globalBounds.y + 1,
+          }
+        },
+        firstItem
+      ]
+      expect(adjustH(items2)).toEqual( trueItems2 );
+    })
+    
+  })
+  
 });

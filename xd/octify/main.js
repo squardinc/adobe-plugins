@@ -37,113 +37,103 @@ const octifyHeightFn = (selection) => {
 
 const shouldPlaceToHorizontal = (items) => {
   const itemOneRightBottom = {
-    x: items[0].boundsInParent.x + items[0].boundsInParent.width,
-    y: items[0].boundsInParent.y + items[0].boundsInParent.height,
+    x: items[0].globalBounds.x + items[0].globalBounds.width,
+    y: items[0].globalBounds.y + items[0].globalBounds.height,
   };
   return !items.find((item,idx) => {
     if(idx === 0) return false
-    return (item.boundsInParent.y  > itemOneRightBottom.y ||
-    item.boundsInParent.x < itemOneRightBottom.x )
+    return (item.globalBounds.y  > itemOneRightBottom.y ||
+    item.globalBounds.x < itemOneRightBottom.x )
   })
 }
 
 const shouldPlaceToVertical = (items) => {
   const itemOneRightBottom = {
-    x: items[0].boundsInParent.x + items[0].boundsInParent.width,
-    y: items[0].boundsInParent.y + items[0].boundsInParent.height,
+    x: items[0].globalBounds.x + items[0].globalBounds.width,
+    y: items[0].globalBounds.y + items[0].globalBounds.height,
   };
   return !items.find((item, idx) => {
     if(idx === 0) return false
-    return (item.boundsInParent.y < itemOneRightBottom.y ||
-      item.boundsInParent.x > itemOneRightBottom.x)
+    return (item.globalBounds.y < itemOneRightBottom.y ||
+      item.globalBounds.x > itemOneRightBottom.x)
   })
 };
 
-const findTop = (items) => {
+const adjustV = (items) => {
   let newItems = items.slice(0, items.length);
-  
   newItems.sort(function (a, b) {
     return a.globalBounds.y - b.globalBounds.y;
   });
   return newItems;
 };
 
-const findLeft = (items) => {
+const adjustH = (items) => {
   let newItems = items.slice(0, items.length);
-  
   newItems.sort(function (a, b) {
     return a.globalBounds.x - b.globalBounds.x;
   });
   return newItems;
 };
 
-const octifyDifferenceFn = (selection) =>  {
+const autoMarginFn = (selection) =>  {
   const { items } = selection;
-              const itemsV = findTop(items);
-              const itemsH = findLeft(items);
+  const itemsV = adjustV(items);
+  const itemsH = adjustH(items);
+   
+  if (items.length >= 2) {
+      if(shouldPlaceToHorizontal(itemsH)){
+        let totalMarginH = 0;
+        let moveDistance = 0;
+        const centerY = itemsH[0].globalBounds.y + (itemsH[0].globalBounds.height / 2); 
+  
+        for(let i = 1; i < items.length; i++){
+          let itemOne = itemsH[i - 1];
+          let itemTwo = itemsH[i];
+  
+          const MarginH = itemTwo.globalBounds.x - (itemOne.globalBounds.x + itemOne.globalBounds.width);
+  
+          totalMarginH += MarginH;
+       }
+        const averageMarginH8 = octify(totalMarginH / ( items.length - 1 ));
+  
+  
+        for(let i = 1; i < itemsH.length; i++){
+          moveDistance += itemsH[i - 1].globalBounds.width + Math.abs(averageMarginH8);
 
-              if (items.length >= 2) {
-            
-                const centerX = items[0].topLeftInParent.x + (items[0].boundsInParent.width / 2);
-                const centerY = items[0].topLeftInParent.y + (items[0].boundsInParent.height / 2);
-            
-                const itemOneRightBottom = {
-                  x: items[0].topLeftInParent.x + items[0].boundsInParent.width,
-                  y: items[0].topLeftInParent.y + items[0].boundsInParent.height,
-                };
-            
-                if(shouldPlaceToHorizontal(itemsH)){
-                  let totalDiffX = 0;
-                  let moveDistance = 0;
-            
-                  for(let i = 1; i < items.length; i++){
-                    let itemOne = itemsH[i - 1];
-                    let itemTwo = itemsH[i];
-            
-                    const diffX = itemTwo.topLeftInParent.x - (itemOne.topLeftInParent.x + itemOne.boundsInParent.width);
-            
-                    totalDiffX += diffX;
-                 }
-                  const averageDiffX8 = octify(totalDiffX / ( items.length - 1 ));
-            
-            
-                  for(let i = 1; i < itemsH.length; i++){
-              
-                    moveDistance += itemsH[i - 1].boundsInParent.width + Math.abs(averageDiffX8);
+          const moveCoordX = itemsH[0].globalBounds.x + moveDistance;
+          const moveCoordY = centerY - Math.abs(itemsH[i].globalBounds.height /2 );
 
-                    const moveCoordX = itemsH[0].translation.x + moveDistance;
-                    const moveCoordY = centerY - Math.abs(itemsH[i].boundsInParent.height /2 );
+          itemsH[i].moveInParentCoordinates(moveCoordX - itemsH[i].globalBounds.x, moveCoordY - itemsH[i].globalBounds.y);
+        }
+      } else if(shouldPlaceToVertical(itemsV)){
+        let totalMarginV = 0;
+        let moveDistance = 0;
+        const centerX = itemsV[0].globalBounds.x + (itemsV[0].globalBounds.width / 2);
+  
+        for(let i = 1; i < itemsV.length; i++){
+          let itemOne = itemsV[i - 1];
+          let itemTwo = itemsV[i];
+  
+          const MarginV = itemTwo.globalBounds.y - (itemOne.globalBounds.y + itemOne.globalBounds.height);
+  
+          totalMarginV += MarginV;
+       }
+        const averageMarginV8 = octify(totalMarginV / ( itemsV.length - 1 ));
+  
+  
+        for(let i = 1; i < itemsV.length; i++){ 
+          moveDistance += itemsV[i - 1].globalBounds.height + Math.abs(averageMarginV8);
 
-                    itemsH[i].moveInParentCoordinates(moveCoordX - itemsH[i].boundsInParent.x, moveCoordY - itemsH[i].boundsInParent.y);
-                  }
-                } else if(shouldPlaceToVertical(itemsV)){
-                  let totalDiffV = 0;
-                  let moveDistance = 0;
-            
-                  for(let i = 1; i < itemsV.length; i++){
-                    let itemOne = itemsV[i - 1];
-                    let itemTwo = itemsV[i];
-            
-                    const diffV = itemTwo.topLeftInParent.y - (itemOne.topLeftInParent.y + itemOne.boundsInParent.height);
-            
-                    totalDiffV += diffV;
-                 }
-                  const averageDiffV8 = octify(totalDiffV / ( itemsV.length - 1 ));
-            
-            
-                  for(let i = 1; i < itemsV.length; i++){
-              
-                    moveDistance += itemsV[i - 1].boundsInParent.height + Math.abs(averageDiffV8);
-
-                    const moveCoordX = centerX - Math.abs(itemsV[i].boundsInParent.width / 2);
-                    const moveCoordY = itemsV[0].boundsInParent.y + moveDistance;
-            
-                    itemsV[i].moveInParentCoordinates(moveCoordX - itemsV[i].boundsInParent.x, moveCoordY - itemsV[i].boundsInParent.y);
-                  }
-                } else{
-                  return
-                }
-              }
+          const moveCoordX = centerX - Math.abs(itemsV[i].globalBounds.width / 2);
+          const moveCoordY = itemsV[0].globalBounds.y + moveDistance;
+  
+          itemsV[i].moveInParentCoordinates(moveCoordX - itemsV[i].globalBounds.x, moveCoordY - itemsV[i].globalBounds.y);
+        }
+      } else{
+        return
+        }
+      
+    }
 };
 
 function create() {
@@ -201,66 +191,60 @@ function create() {
           editDocument({ editLabel: "Auto margin"}, function (selection) {
           
               const { items } = selection;
-              const itemsV = findTop(items);
-              const itemsH = findLeft(items);
+              const itemsV = adjustV(items);
+              const itemsH = adjustH(items);
 
               if (items.length >= 2) {
             
-                const centerX = items[0].topLeftInParent.x + (items[0].boundsInParent.width / 2);
-                const centerY = items[0].topLeftInParent.y + (items[0].boundsInParent.height / 2);
-            
-                const itemOneRightBottom = {
-                  x: items[0].topLeftInParent.x + items[0].boundsInParent.width,
-                  y: items[0].topLeftInParent.y + items[0].boundsInParent.height,
-                };
-            
                 if(shouldPlaceToHorizontal(itemsH)){
-                  let totalDiffX = 0;
+                  let totalMarginH = 0;
                   let moveDistance = 0;
+                  const centerY = itemsH[0].globalBounds.y + (itemsH[0].globalBounds.height / 2);
             
                   for(let i = 1; i < items.length; i++){
                     let itemOne = itemsH[i - 1];
                     let itemTwo = itemsH[i];
             
-                    const diffX = itemTwo.topLeftInParent.x - (itemOne.topLeftInParent.x + itemOne.boundsInParent.width);
+                    const MarginH = itemTwo.globalBounds.x - (itemOne.globalBounds.x + itemOne.globalBounds.width);
             
-                    totalDiffX += diffX;
+                    totalMarginH += MarginH;
                  }
-                  const averageDiffX8 = octify(totalDiffX / ( items.length - 1 ));
+                  const averageMarginH8 = octify(totalMarginH / ( items.length - 1 ));
             
             
                   for(let i = 1; i < itemsH.length; i++){
               
-                    moveDistance += itemsH[i - 1].boundsInParent.width + Math.abs(averageDiffX8);
+                    moveDistance += itemsH[i - 1].globalBounds.width + Math.abs(averageMarginH8);
 
-                    const moveCoordX = itemsH[0].translation.x + moveDistance;
-                    const moveCoordY = centerY - Math.abs(itemsH[i].boundsInParent.height /2 );
+                    const moveCoordX = itemsH[0].globalBounds.x + moveDistance;
+                    const moveCoordY = centerY - Math.abs(itemsH[i].globalBounds.height /2 );
 
-                    itemsH[i].moveInParentCoordinates(moveCoordX - itemsH[i].boundsInParent.x, moveCoordY - itemsH[i].boundsInParent.y);
+                    itemsH[i].moveInParentCoordinates(moveCoordX - itemsH[i].globalBounds.x, moveCoordY - itemsH[i].globalBounds.y);
                   }
                 } else if(shouldPlaceToVertical(itemsV)){
-                  let totalDiffV = 0;
+                  let totalMarginV = 0;
                   let moveDistance = 0;
+                  const centerX = itemsV[0].globalBounds.x + (itemsV[0].globalBounds.width / 2);
             
                   for(let i = 1; i < itemsV.length; i++){
                     let itemOne = itemsV[i - 1];
                     let itemTwo = itemsV[i];
             
-                    const diffV = itemTwo.topLeftInParent.y - (itemOne.topLeftInParent.y + itemOne.boundsInParent.height);
+                    const MarginV = itemTwo.globalBounds.y - (itemOne.globalBounds.y + itemOne.globalBounds.height);
             
-                    totalDiffV += diffV;
+                    totalMarginV += MarginV;
                  }
-                  const averageDiffV8 = octify(totalDiffV / ( itemsV.length - 1 ));
+                  const averageMarginV8 = octify(totalMarginV / ( itemsV.length - 1 ));
             
             
                   for(let i = 1; i < itemsV.length; i++){
               
-                    moveDistance += itemsV[i - 1].boundsInParent.height + Math.abs(averageDiffV8);
+                    moveDistance += itemsV[i - 1].globalBounds.height + Math.abs(averageMarginV8);
 
-                    const moveCoordX = centerX - Math.abs(itemsV[i].boundsInParent.width / 2);
-                    const moveCoordY = itemsV[0].boundsInParent.y + moveDistance;
+                    const moveCoordX = centerX - Math.abs(itemsV[i].globalBounds.width / 2);
+                    const moveCoordY = itemsV[0].globalBounds.y + moveDistance;
             
-                    itemsV[i].moveInParentCoordinates(moveCoordX - itemsV[i].boundsInParent.x, moveCoordY - itemsV[i].boundsInParent.y);
+                    itemsV[i].moveInParentCoordinates(moveCoordX - itemsV[i].globalBounds.x, moveCoordY - itemsV[i].globalBounds.y);
                   }
                 } else{
                   return
@@ -274,15 +258,15 @@ function create() {
 
     editDocument({ editLabel: "Line up vertical"}, function (selection) {
       const { items } = selection;
-      const newItems = findTop(items);
+      const newItems = adjustV(items);
       let moveDistance = 0;
-      const centerX = newItems[0].boundsInParent.x + (newItems[0].boundsInParent.width / 2);  
+      const centerX = newItems[0].globalBounds.x + (newItems[0].globalBounds.width / 2);  
       for(let i = 1; i < newItems.length; i++){
-        moveDistance += newItems[i - 1].boundsInParent.height + 8;
-        const moveCoordX = centerX - Math.abs(newItems[i].boundsInParent.width / 2);
-        const moveCoordY = newItems[0].boundsInParent.y + moveDistance;
+        moveDistance += newItems[i - 1].globalBounds.height + 8;
+        const moveCoordX = centerX - Math.abs(newItems[i].globalBounds.width / 2);
+        const moveCoordY = newItems[0].globalBounds.y + moveDistance;
 
-        newItems[i].moveInParentCoordinates(moveCoordX - newItems[i].boundsInParent.x, moveCoordY - newItems[i].boundsInParent.y);
+        newItems[i].moveInParentCoordinates(moveCoordX - newItems[i].globalBounds.x, moveCoordY - newItems[i].globalBounds.y);
   }
     })
   }
@@ -292,12 +276,11 @@ function create() {
 
     editDocument({ editLabel: "Line up vertical"}, function (selection) {
       const { items } = selection;
-      const newItems = findLeft(items);
+      const newItems = adjustH(items);
       let moveDistance = 0;
       const centerY = newItems[0].globalBounds.y + (newItems[0].globalBounds.height / 2);  
       for(let i = 1; i < newItems.length; i++){
         moveDistance += newItems[i - 1].globalBounds.width + 8;
-
         const moveCoordX = newItems[0].globalBounds.x + moveDistance;
         const moveCoordY = centerY - Math.abs(newItems[i].globalBounds.height / 2);
 
@@ -311,17 +294,19 @@ function create() {
     
     editDocument({ editLabel: "Decrease margin"}, function (selection) {
       const { items } = selection;
-      const itemsV = findTop(items);
-       const itemsH = findLeft(items);
+      const itemsV = adjustV(items);
+      const itemsH = adjustH(items);
       if(shouldPlaceToHorizontal(itemsH)){
         for(let i = 1; i < itemsH.length; i ++){
             const moveItem= itemsH[i];
-            moveItem.translation = {x: moveItem.translation.x + 8 * i, y: moveItem.translation.y}
+            const moveCoordX = moveItem.globalBounds.x + 8 * i;
+            moveItem.moveInParentCoordinates(moveCoordX - moveItem.globalBounds.x, 0);
         }
       }else if(shouldPlaceToVertical(itemsV)){
         for(let i = 1; i < itemsV.length; i ++){
             const moveItem= itemsV[i];
-            moveItem.translation = {x: moveItem.translation.x, y: moveItem.translation.y + 8 * i}
+            const moveCoordY =  moveItem.globalBounds.y + 8 * i; 
+            moveItem.moveInParentCoordinates(0, moveCoordY - moveItem.globalBounds.y);
         }
       }else{
         return
@@ -334,17 +319,19 @@ function create() {
       
       editDocument({ editLabel: "Decrease margin"}, function (selection) {
         const { items } = selection;
-        const itemsV = findTop(items);
-         const itemsH = findLeft(items);
+        const itemsV = adjustV(items);
+        const itemsH = adjustH(items);
         if(shouldPlaceToHorizontal(itemsH)){
           for(let i = 1; i < itemsH.length; i ++){
               const moveItem= itemsH[i];
-              moveItem.translation = {x: moveItem.translation.x - 8 * i, y: moveItem.translation.y}
+              const moveCoordX = moveItem.globalBounds.x - 8 * i;
+            　moveItem.moveInParentCoordinates(moveCoordX - moveItem.globalBounds.x, 0);
           }
         }else if(shouldPlaceToVertical(itemsV)){
           for(let i = 1; i < itemsV.length; i ++){
               const moveItem= itemsV[i];
-              moveItem.translation = {x: moveItem.translation.x, y: moveItem.translation.y - 8 * i}
+              const moveCoordY =  moveItem.globalBounds.y - 8 * i; 
+            　moveItem.moveInParentCoordinates(0, moveCoordY - moveItem.globalBounds.y);
           }
         }else{
           return
@@ -365,7 +352,6 @@ function create() {
 };
 
 function show(event) {
-
   
   if (!panel) event.node.appendChild(create());
 
@@ -377,12 +363,13 @@ module.exports = {
   octify,
   shouldPlaceToHorizontal,
   shouldPlaceToVertical,
-  findTop,
+  adjustV,
+  adjustH,
   commands: {
     octify: octifyFn,
     octifyWidth: octifyWidthFn,
     octifyHeight: octifyHeightFn,
-    octifyDiff: octifyDifferenceFn,
+    octifyMargin: autoMarginFn,
   },
   panels: {
     octifyMarginPanel: {
