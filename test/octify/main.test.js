@@ -1,5 +1,6 @@
 const { describe, test, expect } = require("@jest/globals");
-const { octify ,shouldPlaceToHorizontal, shouldPlaceToVertical, adjustV, adjustH, makeMoveCoordX, makeMoveCoordY} = require("/Users/yuuki/Library/Application Support/Adobe/Adobe XD/develop/octify/main.js");
+const { octify ,shouldPlaceToHorizontal, shouldPlaceToVertical, adjustV, adjustH, makeMoveCoordX, makeMoveCoordY, makeMoveCoordV, makeMoveCoordH,} 
+  = require("/Users/yuuki/Library/Application Support/Adobe/Adobe XD/develop/octify/main.js");
 
 describe("Octify", () => {
   describe("Octify", () => {
@@ -246,7 +247,7 @@ describe("Octify", () => {
       ]
       expect(adjustH(items)).toEqual( trueItems );
     })
-    test(" whether it arrange correctly, when one item's x is laeger than lead item's x", () => {
+    test(" whether it arrange correctly, when one item's x is laeger than lead item's y", () => {
       const trueItems2 = [
         firstItem,
         {
@@ -292,7 +293,7 @@ describe("Octify", () => {
         height: 10,
       }
     };
-    test(" 正しく移動さきのポジションが作れているか（横）", () => {
+    test(" whether it arrange correctly, if there is a item bottom and side of firstItem", () => {
       const trueArray = [
         {x: 18, y: -5},
         {x: 46, y: -10},
@@ -329,7 +330,7 @@ describe("Octify", () => {
         height: 10,
       }
     };
-    test(" 正しく移動さきのポジションが作れているか(縦)", () => {
+    test(" whether it arrange correctly, if there is a item bottom and side of firstItem", () => {
       const trueArray = [
         {x: -5, y: 18},
         {x: -10, y: 46},
@@ -356,4 +357,79 @@ describe("Octify", () => {
       expect(makeMoveCoordY(Item)).toEqual( trueArray );
     })
   })
+
+  describe("makeMoveCoordV", () => {
+    const firstItem = {
+      globalBounds: {
+        x: 0,
+        y: 0,
+        width: 10,
+        height: 10,
+      }
+    };
+    test("whether it arrange correctly, if there is a item bottom and side of firstItem", () => {
+      const trueArray = [
+        {x: -5, y: 18},
+        {x: -5, y: 46}
+      ]
+      const Item = [
+        firstItem,
+        {
+          globalBounds: {
+            x: firstItem.globalBounds.x + 20,
+            y: firstItem.globalBounds.y + 1,
+            width: firstItem.globalBounds.width + 10,
+            height: firstItem.globalBounds.height + 10,
+          }
+        },
+        {
+          globalBounds: {
+            x: firstItem.globalBounds.x + 1,
+            y: firstItem.globalBounds.y + 20,
+            width: firstItem.globalBounds.width + 10,
+            height: firstItem.globalBounds.height + 10,
+          }
+        }
+      ]
+      expect(makeMoveCoordV(Item)).toEqual(trueArray);
+    })
+  })
+
+  describe("makeMoveCoordH", () => {
+    const firstItem = {
+      globalBounds: {
+        x: 0,
+        y: 0,
+        width: 10,
+        height: 10,
+      }
+    };
+    test("whether it arrange correctly, if there is a item bottom and side of firstItem", () => {
+      const trueArray = [
+        {x: 18, y: -5},
+        {x: 46, y: -5}
+      ]
+      const Item = [
+        firstItem,
+        {
+          globalBounds: {
+            x: firstItem.globalBounds.x + 1,
+            y: firstItem.globalBounds.y + 20,
+            width: firstItem.globalBounds.width + 10,
+            height: firstItem.globalBounds.height + 10,
+          }
+        },
+        {
+          globalBounds: {
+            x: firstItem.globalBounds.x + 20,
+            y: firstItem.globalBounds.y + 1,
+            width: firstItem.globalBounds.width + 10,
+            height: firstItem.globalBounds.height + 10,
+          }
+        }
+      ]
+      expect(makeMoveCoordH(Item)).toEqual(trueArray);
+    })
+  })
+
 });

@@ -1,7 +1,7 @@
 const octify = (number) => Math.round(number / 8) * 8;
 
 
-//const { selection } = require("scenegraph");
+const { selection } = require("scenegraph");
 
 let panel;
 
@@ -60,6 +60,7 @@ const shouldPlaceToVertical = (items) => {
 };
 
 const adjustV = (items) => {
+  // it line up items verticaly
   let newItems = items.slice(0, items.length);
   newItems.sort(function (a, b) {
     return a.globalBounds.y - b.globalBounds.y;
@@ -68,6 +69,7 @@ const adjustV = (items) => {
 };
 
 const adjustH = (items) => {
+  // it line up items horizontally
   let newItems = items.slice(0, items.length);
   newItems.sort(function (a, b) {
     return a.globalBounds.x - b.globalBounds.x;
@@ -76,6 +78,7 @@ const adjustH = (items) => {
 };
 
 const makeMoveCoordX = (itemsH) => {
+  // when you use autoMarginFn or autoMargin, if shouldPlaceToVertical == true, it makes coord to move items
   let totalMarginH = 0;
   let moveDistance = 0;
   let moveCoordArray = [];
@@ -101,29 +104,55 @@ const makeMoveCoordX = (itemsH) => {
 };
 
 const makeMoveCoordY = (itemsV) => {
+  // when you use autoMarginFn or autoMargin, if shouldPlaceToHorizon == true, it make Coord to move items
   let totalMarginV = 0;
   let moveDistance = 0;
   let moveCoordArray = [];
   const centerX = itemsV[0].globalBounds.x + (itemsV[0].globalBounds.width / 2);
-
   for(let i = 1; i < itemsV.length; i++) {
     let itemOne = itemsV[i - 1];
     let itemTwo = itemsV[i];
     const MarginV = itemTwo.globalBounds.y - (itemOne.globalBounds.y + itemOne.globalBounds.height);
     totalMarginV += MarginV;
   }
-
   const averageMarginV8 = octify(totalMarginV / ( itemsV.length - 1 ));
-
   for(let i = 1; i < itemsV.length; i++){
     moveDistance += itemsV[i - 1].globalBounds.height + Math.abs(averageMarginV8);
     const moveCoordX = centerX - Math.abs(itemsV[i].globalBounds.width / 2);
     const moveCoordY = itemsV[0].globalBounds.y + moveDistance;
-
     moveCoordArray.push({x: moveCoordX, y: moveCoordY});
   };
   return moveCoordArray;
 };
+
+const makeMoveCoordV = (itemsV) => {
+  // when you use autoVertical, it makes coord to move items
+      let moveDistance = 0;
+      const centerX = itemsV[0].globalBounds.x + (itemsV[0].globalBounds.width / 2);  
+      let moveCoordArray = [];
+      for(let i = 1; i < itemsV.length; i++){
+        moveDistance += itemsV[i - 1].globalBounds.height + 8;
+        const moveCoordX = centerX - Math.abs(itemsV[i].globalBounds.width / 2);
+        const moveCoordY = itemsV[0].globalBounds.y + moveDistance;
+        moveCoordArray.push({x: moveCoordX, y: moveCoordY});
+      };
+      return moveCoordArray;
+};
+
+const makeMoveCoordH = (itemsH) => {
+  // when you use autoHorizon, it makes coord to move items
+  let moveDistance = 0;
+  const centerY = itemsH[0].globalBounds.y + (itemsH[0].globalBounds.height / 2);  
+  let moveCoordArray = [];
+  for(let i = 1; i < itemsH.length; i++){
+    moveDistance += itemsH[i - 1].globalBounds.width + 8;
+    const moveCoordX = itemsH[0].globalBounds.x + moveDistance;
+    const moveCoordY = centerY - Math.abs(itemsH[i].globalBounds.height / 2);
+    moveCoordArray.push({x: moveCoordX, y: moveCoordY});
+  };
+  return moveCoordArray;
+};
+
 
 const autoMarginFn = (selection) =>  {
   const { items } = selection;
@@ -131,25 +160,22 @@ const autoMarginFn = (selection) =>  {
   const itemsH = adjustH(items);
    
   if (items.length >= 2) {
-      if(shouldPlaceToHorizontal(itemsH)){
-        
-  
-        for(let i = 1; i < itemsH.length; i++){
-          itemsH[i].moveInParentCoordinates(makeMoveCoordX(itemsH)[i - 1].x 
-          - itemsH[i].globalBounds.x, makeMoveCoordX(itemsH)[i - 1].y - itemsH[i].globalBounds.y);
-        }
-      } else if(shouldPlaceToVertical(itemsV)){
-        
-        for(let i = 1; i < itemsV.length; i++){ 
-          
-          itemsV[i].moveInParentCoordinates(makeMoveCoordY(itemsV)[i - 1].x 
-          - itemsV[i].globalBounds.x, makeMoveCoordY(itemsV)[i - 1].y - itemsV[i].globalBounds.y);
-        }
-      } else{
-        return
-        }
+    if(shouldPlaceToHorizontal(itemsH)){
+      for(let i = 1; i < itemsH.length; i++){
+        itemsH[i].moveInParentCoordinates(makeMoveCoordX(itemsH)[i - 1].x 
+        - itemsH[i].globalBounds.x, makeMoveCoordX(itemsH)[i - 1].y - itemsH[i].globalBounds.y);
+      }
+    } else if(shouldPlaceToVertical(itemsV)){
       
-    }
+      for(let i = 1; i < itemsV.length; i++){ 
+        
+        itemsV[i].moveInParentCoordinates(makeMoveCoordY(itemsV)[i - 1].x 
+        - itemsV[i].globalBounds.x, makeMoveCoordY(itemsV)[i - 1].y - itemsV[i].globalBounds.y);
+      }
+    } else{
+      return
+      }     
+  }
 };
 
 function create() {
@@ -202,70 +228,46 @@ function create() {
       `
 
       function autoMargin() {
-          const { editDocument } = require("application");
-          
-          editDocument({ editLabel: "Auto margin"}, function (selection) {
-          
-              const { items } = selection;
-              const itemsV = adjustV(items);
-              const itemsH = adjustH(items);
-
-              if (items.length >= 2) {
-                if(shouldPlaceToHorizontal(itemsH)){
-                  
-            
-                  for(let i = 1; i < itemsH.length; i++){
-                    itemsH[i].moveInParentCoordinates(makeMoveCoordX(itemsH)[i - 1].x 
-                    - itemsH[i].globalBounds.x, makeMoveCoordX(itemsH)[i - 1].y - itemsH[i].globalBounds.y);
-                  }
-                } else if(shouldPlaceToVertical(itemsV)){
-                  
-                  for(let i = 1; i < itemsV.length; i++){ 
-                    
-                    itemsV[i].moveInParentCoordinates(makeMoveCoordY(itemsV)[i - 1].x 
-                    - itemsV[i].globalBounds.x, makeMoveCoordY(itemsV)[i - 1].y - itemsV[i].globalBounds.y);
-                  }
-                } else{
-                  return
-                  }
-                
+        const { editDocument } = require("application");
+        editDocument({ editLabel: "Auto margin"}, function (selection) {
+          const { items } = selection;
+          const itemsV = adjustV(items);
+          const itemsH = adjustH(items);
+          if (items.length >= 2) {  
+            if(shouldPlaceToHorizontal(itemsH)){
+              for(let i = 1; i < itemsH.length; i++){
+                itemsH[i].moveInParentCoordinates(makeMoveCoordX(itemsH)[i - 1].x 
+                - itemsH[i].globalBounds.x, makeMoveCoordX(itemsH)[i - 1].y - itemsH[i].globalBounds.y);
               }
-          })
+            } else if(shouldPlaceToVertical(itemsV)){
+              for(let i = 1; i < itemsV.length; i++){ 
+                itemsV[i].moveInParentCoordinates(makeMoveCoordY(itemsV)[i - 1].x 
+                - itemsV[i].globalBounds.x, makeMoveCoordY(itemsV)[i - 1].y - itemsV[i].globalBounds.y);
+              }
+            } else{
+              return
+              }
+          }
+        })
       }
 
   function autoVertical() {
     const { editDocument } = require("application");
-
     editDocument({ editLabel: "Line up vertical"}, function (selection) {
-      const { items } = selection;
-      const newItems = adjustV(items);
-      let moveDistance = 0;
-      const centerX = newItems[0].globalBounds.x + (newItems[0].globalBounds.width / 2);  
-      for(let i = 1; i < newItems.length; i++){
-        moveDistance += newItems[i - 1].globalBounds.height + 8;
-        const moveCoordX = centerX - Math.abs(newItems[i].globalBounds.width / 2);
-        const moveCoordY = newItems[0].globalBounds.y + moveDistance;
-
-        newItems[i].moveInParentCoordinates(moveCoordX - newItems[i].globalBounds.x, moveCoordY - newItems[i].globalBounds.y);
+      const itemsV = adjustV(selection.items);
+      for(let i = 1; i < itemsV.length; i++){
+        itemsV[i].moveInParentCoordinates(makeMoveCoordV(itemsV)[i -1].x - itemsV[i].globalBounds.x, makeMoveCoordV(itemsV)[i -1].y - itemsV[i].globalBounds.y);
   }
     })
   }
 
   function autoHorizon() {
     const { editDocument } = require("application");
-
     editDocument({ editLabel: "Line up vertical"}, function (selection) {
-      const { items } = selection;
-      const newItems = adjustH(items);
-      let moveDistance = 0;
-      const centerY = newItems[0].globalBounds.y + (newItems[0].globalBounds.height / 2);  
-      for(let i = 1; i < newItems.length; i++){
-        moveDistance += newItems[i - 1].globalBounds.width + 8;
-        const moveCoordX = newItems[0].globalBounds.x + moveDistance;
-        const moveCoordY = centerY - Math.abs(newItems[i].globalBounds.height / 2);
-
-        newItems[i].moveInParentCoordinates(moveCoordX - newItems[i].globalBounds.x, moveCoordY - newItems[i].globalBounds.y);
-  }
+      const itemsH = adjustH(selection.items);
+      for(let i = 1; i < itemsH.length; i++){
+        itemsH[i].moveInParentCoordinates(makeMoveCoordH(itemsH)[i -1].x - itemsH[i].globalBounds.x, makeMoveCoordH(itemsH)[i -1].y - itemsH[i].globalBounds.y);
+      }
     })
   }
 
@@ -347,6 +349,8 @@ module.exports = {
   adjustH,
   makeMoveCoordX,
   makeMoveCoordY,
+  makeMoveCoordV,
+  makeMoveCoordH,
   commands: {
     octify: octifyFn,
     octifyWidth: octifyWidthFn,
