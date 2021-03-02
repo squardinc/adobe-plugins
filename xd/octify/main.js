@@ -1,4 +1,4 @@
-const octify = (number) => Math.round(number / 8) * 8;
+const octify = (number) => number < 4 ? 8 : Math.round(number / 8) * 8;
 
 const octifyFn = (selection) => {
   selection.items.forEach((item) => {
