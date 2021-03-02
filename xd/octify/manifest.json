@@ -41,6 +41,16 @@
       "type": "menu",
       "label": "height",
       "commandId": "octifyHeight"
+    },
+    {
+      "type": "menu",
+      "label": "margin",
+      "commandId": "octifyMargin"
+    },
+    {
+      "type": "panel",
+      "label": "margin panel",
+      "panelId": "octifyMarginPanel"
     }
   ]
 }
