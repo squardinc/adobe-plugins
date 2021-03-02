@@ -1,4 +1,9 @@
-const octify = (number) => Math.round(number / 8) * 8;
+const octify = (number) => 
+{
+  if(number < 8)
+  {return 8}
+  else{return Math.round(number / 8) * 8;}
+};
 
 
 const { selection } = require("scenegraph");
@@ -152,6 +157,7 @@ const makeMoveCoordH = (itemsH) => {
   };
   return moveCoordArray;
 };
+
 
 
 const autoMarginFn = (selection) =>  {
