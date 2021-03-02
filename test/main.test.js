@@ -3,7 +3,7 @@ const { octify } = require("/Users/yuuki/Library/Application Support/Adobe/Adobe
 
 describe("Octify", () => {
   describe("Octify", () => {
-    test("8で割ったあまりが０.５未満の場合は８を返す", () => {
+    test("8で割ったあまりが0.5未満の場合は8を返す", () => {
       expect(octify(0)).toBe(8);
       expect(octify(3.9)).toBe(8);
     })
