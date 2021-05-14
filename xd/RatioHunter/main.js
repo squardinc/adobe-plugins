@@ -3,9 +3,19 @@ const ratios = {
   wide: 9 / 16,
   golden: 1 / 1.618,
   camera: 2 / 3,
+  silver: 1 / 1.414,
   standard: 3 / 4,
   square: 1,
 };
+const ratioCommand = () => {
+  const command = {}
+  Object.keys(ratios).forEach(key => {
+    Object.assign(command, {
+      [key]: (selection) => adjustWithRatio(selection, ratios[key])
+    })
+  })
+  return command
+}
 const ratioArray = Object.values(ratios);
 
 const extract = (selection) => {
@@ -54,11 +64,6 @@ module.exports = {
   toNextHeight,
   commands: {
     hunt,
-    cinemascope: (selection) => adjustWithRatio(selection, ratios.cinemascope),
-    wide: (selection) => adjustWithRatio(selection, ratios.wide),
-    golden: (selection) => adjustWithRatio(selection, ratios.golden),
-    camera: (selection) => adjustWithRatio(selection, ratios.camera),
-    standard: (selection) => adjustWithRatio(selection, ratios.standard),
-    square: (selection) => adjustWithRatio(selection, ratios.square),
+    ...ratioCommand(),
   },
 };

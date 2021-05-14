@@ -3,7 +3,7 @@
   "name": "RatioHunter",
   "summary": "Optimize the box for artboards",
   "description": "Makes the box optimized for artboards.\r\n- CinemaScope\r\n- Wide\r\n- Golden\r\n- Camera\r\n- Standard\r\n- Square",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "host": {
     "app": "XD",
     "minVersion": "13.0.0"
@@ -34,6 +34,11 @@
       "type": "menu",
       "label": "Camera - 3:2",
       "commandId": "camera"
+    },
+    {
+      "type": "menu",
+      "label": "Silver - 1.414:1",
+      "commandId": "silver"
     },
     {
       "type": "menu",
