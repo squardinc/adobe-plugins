@@ -1,5 +1,5 @@
 const { describe, test, expect } = require("@jest/globals");
-const { octify } = require("/Users/yuuki/Library/Application Support/Adobe/Adobe XD/develop/octify/main.js");
+const { octify } = require("../../xd/Octify/main.js");
 
 describe("Octify", () => {
   describe("Octify", () => {

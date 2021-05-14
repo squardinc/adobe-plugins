@@ -21,6 +21,7 @@ const octifyHeightFn = (selection) => {
 };
 
 module.exports = {
+  octify,
   commands: {
     octify: octifyFn,
     octifyWidth: octifyWidthFn,
